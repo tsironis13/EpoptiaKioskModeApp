@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="obj"
+            type="kioskmode.com.epoptia.POJO.StationWorker" />
+
+        <variable
+            name="presenter"
+            type="kioskmode.com.epoptia.kioskmode.stationworkers.StationWorkersPresenter" />
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/baseLlt"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:padding="7dp"
+        android:onClick="@{() -> presenter.onBaseViewClick(baseLlt)}">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{obj.username}" />
+
+        <!--<CheckBox-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentRight="true" />-->
+
+    </RelativeLayout>
+
+</layout>

@@ -4,16 +4,14 @@ import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import kioskmode.com.epoptia.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
 
 /**
  * Created by giannis on 26/8/2017.

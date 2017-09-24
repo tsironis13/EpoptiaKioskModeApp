@@ -2,8 +2,10 @@ package kioskmode.com.epoptia;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import kioskmode.com.epoptia.app.utils.LifecycleHandler;
 
@@ -36,5 +38,10 @@ public class BaseActivity extends AppCompatActivity implements LifecycleHandler.
     @Override
     public void onBecameBackground() {
 
+    }
+
+    public void showSnackBrMsg(String msg, View container, int length) {
+        Snackbar snackbar = Snackbar.make(container, msg, length);
+        snackbar.show();
     }
 }

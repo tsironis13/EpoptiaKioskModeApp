@@ -88,8 +88,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
         String title = "aaaaaaaaaaaaaaa";
 //        String text = context.getString(textResId);
         String text = "kjdfkjdfjfdkfdkjfdj";
-        RemoteViews bigView = new RemoteViews(context.getPackageName(),
-                R.layout.big_notification);
+        RemoteViews bigView = new RemoteViews(context.getPackageName(), R.layout.big_notification);
 
         Intent dismissIntent = new Intent(context, PhoneStateReceiver.class);
         dismissIntent.setAction("DISMISS");

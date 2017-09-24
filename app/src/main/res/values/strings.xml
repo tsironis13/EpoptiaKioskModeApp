@@ -1,5 +1,49 @@
 <resources>
-    <string name="app_name">Epoptia</string>
+    <string name="app_name">Εποπτία</string>
     <string name="action_type">action_type</string>
     <string name="device_admin_description">device_admin_description</string>
+
+    <string name="welcome">Καλωσήρθατε!</string>
+
+    <!-- Shared Prefs -->
+    <string name="domain_authenticated">domain_authenticated</string>
+    <string name="device_locked">device_locked</string>
+    <string name="access_token">access_token</string>
+    <string name="admin_username">admin_username</string>
+    <string name="admin_password">admin_password</string>
+
+    <!-- Login Admin Activity -->
+    <string name="subdomain">subdomain</string>
+    <string name="subdomain_hint">Subdomain</string>
+    <string name="admnusername_hint">Όνομα χρήστη</string>
+    <string name="admnpassword_hint">Κωδικός πρόσβασης</string>
+    <string name="submit">Υποβολη</string>
+    <string name="subdomain_required">Το domain είναι υποχρεωτικό.</string>
+    <string name="subdomain_not_valid">Το subdomain δεν είναι έγκυρο.</string>
+    <string name="error">Ενα σφάλμα έχει προκύψει.</string>
+    <string name="no_connection">Χωρίς σύνδεση στο δίκτυο.</string>
+    <string name="username_password_required">Το όνομα χρήστη και ο κωδικός πρόσβασης είναι υποχρεωτικά.</string>
+    <string name="username_password_invalid">Το όνομα χρήστη ή ο κωδικός πρόσβασης δεν είναι έγκυρα.</string>
+
+    <!-- Work Stations Activity -->
+    <string name="work_stations_title">Σταθμοί Εργασίας</string>
+    <string name="lock">Κλείδωμα</string>
+    <string name="lock_device_dialog_title">Κλείδωμα συσκευής</string>
+    <string name="lock_device_dialog_msg">Η συσκευή θα κλειδώσει. Είσαι σίγουρος?</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Οχι</string>
+
+    <!-- Kiosk Mode Activity -->
+    <string name="station_workers_frgmt">station_workers_frgmt</string>
+    <string name="system_dahsboard_frgmt">system_dahsboard_frgmt</string>
+    <string name="top_backstack_entry_id">top_backstack_entry_id</string>
+
+    <string name="workers_frgmt_title">Εργάτες σταθμού</string>
+
+    <string name="retry">Ξαναπροσπαθησε</string>
+    <string name="unlock">Ξεκλειδωμα</string>
+    <string name="logout">Αποσύνδεση</string>
+    <string name="enter_worker_password_dialog_title">Κωδικός εργάτη</string>
+    <string name="enter_admin_cred_dialog_title">Στοιχεία διαχειριστή</string>
+
 </resources>

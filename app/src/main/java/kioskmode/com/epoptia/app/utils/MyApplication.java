@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import kioskmode.com.epoptia.KioskModeActivity;
-
 /**
  * Created by giannis on 26/8/2017.
  */

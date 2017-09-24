@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="isdomainValid"
+            type="boolean" />
+
+        <variable
+            name="processing"
+            type="boolean" />
+
+    </data>
+
+    <LinearLayout
+        android:id="@+id/containerLnlt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="35dp">
+
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:src="@drawable/logo"
+            android:layout_marginBottom="30dp"
+            android:contentDescription="logo" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="250dp"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/subdomainEdt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/subdomain_hint"
+                android:textSize="13sp"
+                android:enabled="@{!isdomainValid}"
+                android:inputType="text" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="xxxxx.epoptia.com" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/admnusernameTxtInputLyt"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="@{isdomainValid ? View.VISIBLE : View.GONE}">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/admnusernameEdt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/admnusername_hint"
+                android:textSize="13sp"
+                android:inputType="text" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/admnpasswordTxtInputLyt"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:visibility="@{isdomainValid ? View.VISIBLE : View.GONE}">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/admnpasswordEdt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/admnpassword_hint"
+                android:textSize="13sp"
+                android:inputType="text" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/submitBtn"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/submit"
+            android:layout_marginTop="15dp" />
+
+        <ProgressBar
+            android:id="@+id/prgrsBr"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="5dp"
+            android:visibility="@{processing ? View.VISIBLE : View.GONE}" />
+
+    </LinearLayout>
+
+</layout>
