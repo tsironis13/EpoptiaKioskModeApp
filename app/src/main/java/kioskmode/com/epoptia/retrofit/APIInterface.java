@@ -4,6 +4,7 @@ import kioskmode.com.epoptia.POJO.GetWorkStationsRequest;
 import kioskmode.com.epoptia.POJO.GetWorkStationsResponse;
 import kioskmode.com.epoptia.POJO.GetWorkersRequest;
 import kioskmode.com.epoptia.POJO.GetWorkersResponse;
+import kioskmode.com.epoptia.POJO.LogoutWorkerRequest;
 import kioskmode.com.epoptia.POJO.ValidateAdminRequest;
 import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
 import kioskmode.com.epoptia.POJO.ValidateCustomerDomainRequest;
@@ -34,4 +35,7 @@ public interface APIInterface {
 
     @POST("actions.php")
     Call<ValidateWorkerResponse> validateWorker(@Body ValidateWorkerRequest request);
+
+    @POST("actions.php")
+    Call<ValidateAdminResponse> logoutWorker(@Body LogoutWorkerRequest request);
 }

@@ -58,7 +58,6 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     private View mView;
     private StationWorkersFrgmtBinding mBinding;
     private List<StationWorker> stationWorkerList = new ArrayList<>();
-    private String[] workers = {"worker1", "worker2", "worker3", "worker4", "worker5", "worker6", "worker7", "worker8", "worker9", "worker10"};
     private LinearLayoutManager linearLayoutManager;
     private RecyclerViewAdapter rcvAdapter;
     private StationWorkersPresenter stationWorkersPresenter;
@@ -87,15 +86,33 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.e(debugTag, "onActivityCreated");
         getActivity().setTitle(getResources().getString(R.string.workers_frgmt_title));
         if (savedInstanceState != null) {
-
+            stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
         } else {
             if (getArguments() != null) {
                 stationId = getArguments().getInt("station_id");
             }
         }
         check();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mBinding.retryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initializeView();
+            }
+        });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getResources().getString(R.string.workstation_id), stationId);
     }
 
     @Override
@@ -115,6 +132,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     }
 
     private void initializeView() {
+        Log.e(debugTag, "INITIALIZE VIEW");
         mBinding.setProcessing(true);
 
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain))).create(APIInterface.class);
@@ -124,6 +142,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
         String accessToken = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token));
         request.setAccess_token(accessToken);
         request.setWorkstation_id(stationId);
+
         /**
          GET List Resources
          **/
@@ -133,9 +152,15 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             public void onResponse(@NonNull Call<GetWorkersResponse> call, @NonNull Response<GetWorkersResponse> response) {
 //                       Log.e(debugTag, response.body().getCode()+ " CODE");
                 mBinding.setProcessing(false);
+                if (mBinding.getHaserror()) mBinding.setHaserror(false);
                 if (response.body() != null) {
                     if (getActivity() != null) {
                         if (response.body().getCode() == 200) {
+                            SharedPrefsUtl.setIntPref(getActivity(), stationId, getResources().getString(R.string.workstation_id));
+
+
+                            Log.e(debugTag, "STATION => "+SharedPrefsUtl.getIntFlag(getActivity(), getResources().getString(R.string.workstation_id)));
+
                             stationWorkerList = response.body().getData();
                             linearLayoutManager = new LinearLayoutManager(getActivity());
                             Log.e(debugTag, mBinding.rcv + " rcv" + getActivity() + " context");
@@ -202,6 +227,9 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                         public void onResponse(Call<ValidateWorkerResponse> call, Response<ValidateWorkerResponse> response) {
                             if (response.body().getCode() == 200) {
                                 String cookie = response.headers().get("Set-Cookie");
+//                                Log.e(debugTag, response.headers().get("Set-Cookie") + "cki");
+                                SharedPrefsUtl.setStringPref(getActivity(), "cookie", response.headers().get("Set-Cookie"));
+                                SharedPrefsUtl.setStringPref(getActivity(), "end_url", response.body().getWorkstation_url());
                                 Headers headers = response.headers();
 
                                 getActivity().getSupportFragmentManager()
@@ -210,7 +238,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                                                                 .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .commit();
 
-                                Log.e(debugTag, "success " + cookie);
+                                Log.e(debugTag, "RESPONSE COOKIE =>" + cookie);
                             } else {
                                 showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                             }

@@ -80,6 +80,13 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 //        intent = getIntent();
 //        Log.e(debugTag, "onCreate " + intent);
 
+        if (savedInstanceState != null) {
+            stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
+            Log.e(debugTag, "saveinstains not null");
+        } else {
+            Log.e(debugTag, "saveinstains null");
+        }
+
         actionType = getIntent().getIntExtra(getResources().getString(R.string.action_type), 0);
         if (actionType == 1020) { //UNLOCK SCREEN
             Log.e(debugTag, "unlock screen FROM ON CREATE");
@@ -94,6 +101,13 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
                 check();
             }
         });
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getResources().getString(R.string.workstation_id), stationId);
     }
 
     private void check() {

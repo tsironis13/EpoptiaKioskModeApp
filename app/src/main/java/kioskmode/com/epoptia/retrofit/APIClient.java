@@ -32,21 +32,6 @@ public class APIClient {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-                .cookieJar(new CookieJar() {
-                    private final HashMap<HttpUrl, List<Cookie>> cookieStore = new HashMap<>();
-
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        Log.e(debugTag, cookies.get(0).toString() + "cookie");
-                        cookieStore.put(url, cookies);
-                    }
-
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> cookies = cookieStore.get(url);
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
-                    }
-                })
                 .addInterceptor(interceptor).build();
 
 

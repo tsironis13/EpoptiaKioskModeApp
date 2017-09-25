@@ -37,6 +37,7 @@
     <string name="station_workers_frgmt">station_workers_frgmt</string>
     <string name="system_dahsboard_frgmt">system_dahsboard_frgmt</string>
     <string name="top_backstack_entry_id">top_backstack_entry_id</string>
+    <string name="workstation_id">workstation_id</string>
 
     <string name="workers_frgmt_title">Εργάτες σταθμού</string>
 

@@ -72,14 +72,14 @@ public class SplashScreen extends BaseActivity {
     private void initializeApp() {
         final boolean authenticated = SharedPrefsUtl.getBooleanFlag(this, getResources().getString(R.string.domain_authenticated));
         final boolean locked = SharedPrefsUtl.getBooleanFlag(this, getResources().getString(R.string.device_locked));
-        startActivity(new Intent(SplashScreen.this, LoginAdminActivity.class));
-//        if (!authenticated) {
-//            startActivity(new Intent(SplashScreen.this, LoginAdminActivity.class));
-//        } else if (!locked) {
-//            startActivity(new Intent(SplashScreen.this, WorkStationsActivity.class));
-//        } else {
-//            startActivity(new Intent(this, KioskModeActivity.class));
-//        }
+//        startActivity(new Intent(SplashScreen.this, LoginAdminActivity.class));
+        if (!authenticated) {
+            startActivity(new Intent(SplashScreen.this, LoginAdminActivity.class));
+        } else if (!locked) {
+            startActivity(new Intent(SplashScreen.this, WorkStationsActivity.class));
+        } else {
+            startActivity(new Intent(this, KioskModeActivity.class));
+        }
     }
 
 }

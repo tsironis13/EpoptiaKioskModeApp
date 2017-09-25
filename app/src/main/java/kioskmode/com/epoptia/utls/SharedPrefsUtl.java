@@ -37,4 +37,16 @@ public class SharedPrefsUtl {
     public static String getStringFlag(Context context, String str) {
         return getSharedPrefs(context).getString(str, str);
     }
+
+    public static void setIntPref(Context context, int value, String flag) {
+        getSharedPrefs(context).edit().putInt(flag, value).apply();
+    }
+
+    public static int getIntFlag(Context context, String str) {
+        return getSharedPrefs(context).getInt(str, 0);
+    }
+
+    public static void removeStringkey(Context context, String key) {
+        getSharedPrefs(context).edit().remove(key).apply();
+    }
 }

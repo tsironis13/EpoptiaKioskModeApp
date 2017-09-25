@@ -62,7 +62,7 @@ public class KioskModeActivity extends BaseActivity {
             cookie = savedInstanceState.getString("cookie");
             url = savedInstanceState.getString("url");
             if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
-                Log.e(debugTag, "hereeeeeeeeeeeeee + aaa " + url);
+//                Log.e(debugTag, "hereeeeeeeeeeeeee + aaa " + url);
                 getSupportFragmentManager().popBackStack();
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -70,7 +70,7 @@ public class KioskModeActivity extends BaseActivity {
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
             } else {
-                initializeView();
+//                initializeView();
             }
         } else {
             if (getIntent().getExtras() != null) {
@@ -109,7 +109,7 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(debugTag, "onResume");
+//        Log.e(debugTag, "onResume");
         preventStatusBarExpansion(this);
     }
 
@@ -130,7 +130,6 @@ public class KioskModeActivity extends BaseActivity {
         outState.putInt("station_id", stationId);
         outState.putString("cookie", cookie);
         outState.putString("url", url);
-        Log.e(debugTag, url + " ,,,,url");
 //        outState.putString("url", "");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName().equals(getResources().getString(R.string.system_dahsboard_frgmt)))
@@ -208,7 +207,6 @@ public class KioskModeActivity extends BaseActivity {
     }
 
     public void setUrl(String url) {
-        Log.e(debugTag, " url in seturl "+url);
         this.url = url;
     }
 
@@ -233,6 +231,7 @@ public class KioskModeActivity extends BaseActivity {
 //                Log.e(debugTag, edittext.getText().toString());
                 if (admnUsernameEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_username))) &&
                         admnPasswordEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_password)))) {
+                    SharedPrefsUtl.removeStringkey(KioskModeActivity.this, "cookie");
                     SharedPrefsUtl.setBooleanPref(KioskModeActivity.this, getResources().getString(R.string.device_locked), false);
                     Intent intent = new Intent(KioskModeActivity.this, SplashScreen.class);
                     intent.putExtra(getResources().getString(R.string.action_type), 1020);
@@ -248,10 +247,31 @@ public class KioskModeActivity extends BaseActivity {
     }
 
     private void initializeView() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.kioskModeLlt, StationWorkersFrgmt.newInstance(stationId), getResources().getString(R.string.station_workers_frgmt))
-                .commit();
+        if (SharedPrefsUtl.getIntFlag(getApplicationContext(), getResources().getString(R.string.workstation_id)) != 0) {
+            stationId = SharedPrefsUtl.getIntFlag(getApplicationContext(), getResources().getString(R.string.workstation_id));
+            Log.e(debugTag, " station from kiosk mode "+stationId);
+        }
+        String prefsCookie = SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie");
+        String prefsUrl = SharedPrefsUtl.getStringFlag(getApplicationContext(), "end_url");
+        Log.e(debugTag, " cookie kiosk mode "+prefsCookie + " url kiosk mode "+prefsUrl);
+        if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
+            cookie = prefsCookie;
+            url = prefsUrl;
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url), getResources().getString(R.string.system_dahsboard_frgmt))
+                    .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
+                    .commit();
+        } else {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.kioskModeLlt, StationWorkersFrgmt.newInstance(stationId), getResources().getString(R.string.station_workers_frgmt))
+                    .commit();
+        }
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.kioskModeLlt, StationWorkersFrgmt.newInstance(stationId), getResources().getString(R.string.station_workers_frgmt))
+//                .commit();
     }
 
     public static void preventStatusBarExpansion(Context context) {
