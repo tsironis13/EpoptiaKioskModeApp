@@ -31,6 +31,8 @@ import kioskmode.com.epoptia.POJO.GetWorkersResponse;
 import kioskmode.com.epoptia.POJO.StationWorker;
 import kioskmode.com.epoptia.POJO.ValidateAdminRequest;
 import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
+import kioskmode.com.epoptia.POJO.ValidateWorkerRequest;
+import kioskmode.com.epoptia.POJO.ValidateWorkerResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
 import kioskmode.com.epoptia.admin.LoginAdminActivity;
@@ -40,6 +42,8 @@ import kioskmode.com.epoptia.kioskmode.systemdashboard.SystemDashboardFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
+import okhttp3.Headers;
+import okhttp3.internal.http2.Header;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -177,20 +181,59 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 
     @Override
     public void onBaseViewClick(View view) {
+        final StationWorker stationWorker = stationWorkerList.get((int)view.getTag());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText edittext = new EditText(getActivity());
         builder.setTitle(getResources().getString(R.string.enter_worker_password_dialog_title));
         builder.setView(edittext);
         builder.setPositiveButton(getResources().getString(R.string.submit), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                Log.e(debugTag, edittext.getText().toString());
-                if (edittext.getText().toString().equals("test")) {
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId), getResources().getString(R.string.system_dahsboard_frgmt))
-                            .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
-                            .commit();
+                if (isNetworkAvailable()) {
+                    final ValidateWorkerRequest request = new ValidateWorkerRequest();
+                    request.setAction("login_worker");
+                    String accessToken = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token));
+                    request.setAccess_token(accessToken);
+                    request.setUsername(stationWorker.getUsername());
+                    request.setPassword(edittext.getText().toString());
+
+                    Call<ValidateWorkerResponse> responseCall = apiInterface.validateWorker(request);
+                    responseCall.enqueue(new Callback<ValidateWorkerResponse>() {
+                        @Override
+                        public void onResponse(Call<ValidateWorkerResponse> call, Response<ValidateWorkerResponse> response) {
+                            if (response.body().getCode() == 200) {
+                                String cookie = response.headers().get("Set-Cookie");
+                                Headers headers = response.headers();
+
+                                getActivity().getSupportFragmentManager()
+                                                                .beginTransaction()
+                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url()), getResources().getString(R.string.system_dahsboard_frgmt))
+                                                                .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
+                                                                .commit();
+
+                                Log.e(debugTag, "success " + cookie);
+                            } else {
+                                showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ValidateWorkerResponse> call, Throwable t) {
+                            showSnackBrMsg(getResources().getString(R.string.error), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
+                        }
+                    });
+                } else {
+                    showSnackBrMsg(getResources().getString(R.string.no_connection), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                 }
+
+
+//                Log.e(debugTag, edittext.getText().toString());
+//                if (edittext.getText().toString().equals("test")) {
+//                    getActivity().getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId), getResources().getString(R.string.system_dahsboard_frgmt))
+//                            .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
+//                            .commit();
+//                }
             }
         });
         mAlertDialog = builder.create();
@@ -205,4 +248,10 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     private void dismissDialog() {
         if (mAlertDialog != null && mAlertDialog.isShowing()) mAlertDialog.dismiss();
     }
+
+    public void showSnackBrMsg(String msg, View container, int length) {
+        Snackbar snackbar = Snackbar.make(container, msg, length);
+        snackbar.show();
+    }
+
 }

@@ -47,6 +47,7 @@ public class KioskModeActivity extends BaseActivity {
     private static final int topBackStackEntryId = 2060;
     private int stationId;
     private AlertDialog mAlertDialog;
+    private String cookie, url;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,11 +59,14 @@ public class KioskModeActivity extends BaseActivity {
         mDecorView = getWindow().getDecorView();
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt("station_id");
+            cookie = savedInstanceState.getString("cookie");
+            url = savedInstanceState.getString("url");
             if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
+                Log.e(debugTag, "hereeeeeeeeeeeeee + aaa " + url);
                 getSupportFragmentManager().popBackStack();
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId), getResources().getString(R.string.system_dahsboard_frgmt))
+                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url), getResources().getString(R.string.system_dahsboard_frgmt))
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
             } else {
@@ -124,6 +128,10 @@ public class KioskModeActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("station_id", stationId);
+        outState.putString("cookie", cookie);
+        outState.putString("url", url);
+        Log.e(debugTag, url + " ,,,,url");
+//        outState.putString("url", "");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName().equals(getResources().getString(R.string.system_dahsboard_frgmt)))
                 outState.putInt(getResources().getString(R.string.top_backstack_entry_id), topBackStackEntryId);
@@ -193,6 +201,15 @@ public class KioskModeActivity extends BaseActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
+    }
+
+    public void setUrl(String url) {
+        Log.e(debugTag, " url in seturl "+url);
+        this.url = url;
     }
 
     private void unlockDevice() {

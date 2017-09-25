@@ -8,6 +8,8 @@ import kioskmode.com.epoptia.POJO.ValidateAdminRequest;
 import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
 import kioskmode.com.epoptia.POJO.ValidateCustomerDomainRequest;
 import kioskmode.com.epoptia.POJO.ValidateCustomerDomainResponse;
+import kioskmode.com.epoptia.POJO.ValidateWorkerRequest;
+import kioskmode.com.epoptia.POJO.ValidateWorkerResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
@@ -29,4 +31,7 @@ public interface APIInterface {
 
     @POST("actions.php")
     Call<GetWorkersResponse> getWorkers(@Body GetWorkersRequest request);
+
+    @POST("actions.php")
+    Call<ValidateWorkerResponse> validateWorker(@Body ValidateWorkerRequest request);
 }

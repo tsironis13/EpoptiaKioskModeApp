@@ -3,6 +3,7 @@ package kioskmode.com.epoptia.kioskmode.systemdashboard;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,11 +14,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebViewClient;
 
 import kioskmode.com.epoptia.R;
+import kioskmode.com.epoptia.admin.LoginAdminActivity;
 import kioskmode.com.epoptia.databinding.SystemDashboardFrgmtBinding;
+import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
 import kioskmode.com.epoptia.kioskmode.stationworkers.StationWorkersFrgmt;
+import kioskmode.com.epoptia.utls.SharedPrefsUtl;
 
 /**
  * Created by giannis on 5/9/2017.
@@ -29,10 +35,13 @@ public class SystemDashboardFrgmt extends Fragment {
     private View mView;
     private SystemDashboardFrgmtBinding mBinding;
     private int stationId;
+    private String cookie, url, subdomain, end_url;
 
-    public static SystemDashboardFrgmt newInstance(int stationId) {
+    public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url) {
         Bundle bundle = new Bundle();
         bundle.putInt("station_id", stationId);
+        bundle.putString("cookie", cookie);
+        bundle.putString("url", url);
         SystemDashboardFrgmt systemDashboardFrgmt = new SystemDashboardFrgmt();
         systemDashboardFrgmt.setArguments(bundle);
         return systemDashboardFrgmt;
@@ -52,11 +61,18 @@ public class SystemDashboardFrgmt extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
-
+        subdomain = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain));
         if (savedInstanceState != null) {
 
         } else {
+            Log.e(debugTag, "onActivityCreated");
             if (getArguments() != null) {
+                cookie = getArguments().getString("cookie");
+                ((KioskModeActivity)getActivity()).setCookie(cookie);
+                Log.e(debugTag, cookie + " COOKIE");
+                end_url = getArguments().getString("url");
+                url = "http://"+subdomain+".epoptia.com/"+end_url;
+                ((KioskModeActivity)getActivity()).setUrl(end_url);
                 stationId = getArguments().getInt("station_id");
             }
         }
@@ -86,8 +102,20 @@ public class SystemDashboardFrgmt extends Fragment {
     private void initializeView() {
         if (isNetworkAvailable()) {
             if (mBinding.getHaserror()) mBinding.setHaserror(false);
+            CookieSyncManager cookieSyncManager = CookieSyncManager.createInstance(mBinding.webView.getContext());
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.setAcceptCookie(true);
+            cookieManager.removeSessionCookie();
+            cookieManager.setCookie(url, cookie);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                cookieManager.flush();
+            } else {
+                cookieSyncManager.sync();
+            }
             mBinding.webView.setWebViewClient(new WebViewClient());
-            mBinding.webView.loadUrl("http://dev.epoptia.com/se.php?se_id=4");
+            Log.e(debugTag, url + " url");
+            mBinding.webView.loadUrl(url);
         } else {
             mBinding.setHaserror(true);
             mBinding.setErrortext(getResources().getString(R.string.no_connection));
