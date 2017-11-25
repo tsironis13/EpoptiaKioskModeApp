@@ -66,30 +66,32 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     private Menu menu;
     private int actionType, stationId;
     private APIInterface apiInterface;
+    private String stationName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_work_stations);
+        setSupportActionBar(mBinding.incltoolbar.toolbar);
+        mBinding.incltoolbar.toolbarTitle.setText(getResources().getString(R.string.work_stations_title));
+
         workStationsPresenter = new WorkStationsPresenter(this);
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(this, getResources().getString(R.string.subdomain))).create(APIInterface.class);
 
         if (getSupportActionBar() != null) {
-            setTitle(getResources().getString(R.string.work_stations_title));
+
         }
 //        intent = getIntent();
 //        Log.e(debugTag, "onCreate " + intent);
 
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
-            Log.e(debugTag, "saveinstains not null");
         } else {
-            Log.e(debugTag, "saveinstains null");
         }
 
         actionType = getIntent().getIntExtra(getResources().getString(R.string.action_type), 0);
         if (actionType == 1020) { //UNLOCK SCREEN
-            Log.e(debugTag, "unlock screen FROM ON CREATE");
+//            Log.e(debugTag, "unlock screen FROM ON CREATE");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -134,8 +136,9 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
     @Override
     public void onBaseViewClick(View view) {
-        Log.e(debugTag, view.getTag() + " ID");
         stationId = workStations.get((int)view.getTag()).getId();
+        stationName = workStations.get((int)view.getTag()).getName();
+        Log.e(debugTag, "StationId: "+stationId + " STATION NAME: "+stationName);
         lockDeviceDialog();
     }
 
@@ -312,7 +315,7 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
     private void checkAppIsDefaultLauncher() {
         if (!isMyAppLauncherDefault()) {
-            Log.e(debugTag, "my app is not default launcher");
+//            Log.e(debugTag, "my app is not default launcher");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
@@ -333,20 +336,20 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 //
 //                startActivity(Intent.createChooser(intnt, "Set as default to enable Kiosk Mode"));
             }
-
-            Log.e("Curt launcher Package:", str);
             Bundle bundle = new Bundle();
             bundle.putInt("station_id", stationId);
+            bundle.putString("station_name", stationName);
             selector.putExtras(bundle);
             startActivity(selector);
         } else {
-            Log.e(debugTag, "my app is default launcher");
+//            Log.e(debugTag, "my app is default launcher");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
             Bundle bundle = new Bundle();
             bundle.putInt("station_id", stationId);
+            bundle.putString("station_name", stationName);
             startActivity(new Intent(this, KioskModeActivity.class).putExtras(bundle));
         }
         finish();

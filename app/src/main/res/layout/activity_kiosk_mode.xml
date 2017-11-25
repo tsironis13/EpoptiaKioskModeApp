@@ -7,6 +7,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:keepScreenOn="true" />
+        android:keepScreenOn="true">
+
+        <include
+            android:id="@+id/incltoolbar"
+            layout="@layout/toolbar" />
+
+    </LinearLayout>
 
 </layout>

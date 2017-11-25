@@ -19,6 +19,7 @@ import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
 import kioskmode.com.epoptia.POJO.ValidateCustomerDomainRequest;
 import kioskmode.com.epoptia.POJO.ValidateCustomerDomainResponse;
 import kioskmode.com.epoptia.R;
+import kioskmode.com.epoptia.SplashScreen;
 import kioskmode.com.epoptia.databinding.ActivityLoginAdminBinding;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
@@ -91,8 +92,8 @@ public class LoginAdminActivity extends BaseActivity {
                                 if (response.body().getCode() == 200) {
                                     SharedPrefsUtl.setBooleanPref(LoginAdminActivity.this, getResources().getString(R.string.domain_authenticated), true);
                                     SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.access_token), response.body().getAccess_token());
-                                    SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.admin_username), mBinding.admnusernameEdt.getText().toString());
-                                    SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.admin_password), mBinding.admnpasswordEdt.getText().toString());
+//                                    SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.admin_username), mBinding.admnusernameEdt.getText().toString());
+//                                    SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.admin_password), mBinding.admnpasswordEdt.getText().toString());
                                     startActivity(new Intent(LoginAdminActivity.this, WorkStationsActivity.class));
                                     finish();
                                 } else {
@@ -107,7 +108,7 @@ public class LoginAdminActivity extends BaseActivity {
                             showSnackBrMsg(getResources().getString(R.string.error), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                         }
                     });
-//                if (mBinding.admnusernameEdt.getText().toString().equals("test") && mBinding.admnpasswordEdt.getText().toString().equals("test")) {
+//                if (mBinding.admnusernameEdt.getText().toString().equals("provider_paths") && mBinding.admnpasswordEdt.getText().toString().equals("provider_paths")) {
 //                    SharedPrefsUtl.setBooleanPref(this, getResources().getString(R.string.domain_authenticated), true);
 //                    startActivity(new Intent(this, WorkStationsActivity.class));
 //                    finish();
@@ -138,9 +139,16 @@ public class LoginAdminActivity extends BaseActivity {
                             if (response.body() != null) {
                                 if (response.body().getCode() == 200) {
                                     SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.subdomain), mBinding.subdomainEdt.getText().toString());
+                                    if (response.body().getAccess_token() != null) {
+                                        SharedPrefsUtl.setStringPref(LoginAdminActivity.this, getResources().getString(R.string.access_token), response.body().getAccess_token());
+                                        SharedPrefsUtl.setBooleanPref(LoginAdminActivity.this, getResources().getString(R.string.domain_authenticated), true);
+                                        startActivity(new Intent(LoginAdminActivity.this, WorkStationsActivity.class));
+                                        finish();
+                                    } else {
 //                                    mBinding.subdomainEdt.setEnabled(false);
-                                    mBinding.setIsdomainValid(true);
-                                    isDomainAuthenticated = true;
+                                        mBinding.setIsdomainValid(true);
+                                        isDomainAuthenticated = true;
+                                    }
                                 } else {
                                     showSnackBrMsg(getResources().getString(R.string.subdomain_not_valid), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                                 }

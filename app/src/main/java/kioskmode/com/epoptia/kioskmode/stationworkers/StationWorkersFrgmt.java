@@ -16,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,7 @@ import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
 import kioskmode.com.epoptia.admin.LoginAdminActivity;
 import kioskmode.com.epoptia.admin.WorkStationsActivity;
 import kioskmode.com.epoptia.databinding.StationWorkersFrgmtBinding;
+import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
 import kioskmode.com.epoptia.kioskmode.systemdashboard.SystemDashboardFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
@@ -64,10 +66,13 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     private APIInterface apiInterface;
     private int stationId;
     private AlertDialog mAlertDialog;
+    private String stationName, title;
 
-    public static StationWorkersFrgmt newInstance(int stationId) {
+    public static StationWorkersFrgmt newInstance(int stationId, String stationName) {
         Bundle bundle = new Bundle();
         bundle.putInt("station_id", stationId);
+//        Log.e(debugTag, stationName + " hereeeeeeeeeee");
+        bundle.putString("station_name", stationName);
         StationWorkersFrgmt stationWorkersFrgmt = new StationWorkersFrgmt();
         stationWorkersFrgmt.setArguments(bundle);
         return stationWorkersFrgmt;
@@ -86,15 +91,28 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.e(debugTag, "onActivityCreated");
-        getActivity().setTitle(getResources().getString(R.string.workers_frgmt_title));
+//        getActivity().setTitle(getResources().getString(R.string.workers_frgmt_title));
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
+            stationName = savedInstanceState.getString("station_name");
         } else {
             if (getArguments() != null) {
                 stationId = getArguments().getInt("station_id");
+                stationName = getArguments().getString("station_name");
             }
         }
+        if (stationName == null) {
+            stationName = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.stationame));
+        } else {
+            SharedPrefsUtl.setStringPref(getActivity(), getResources().getString(R.string.stationame), stationName);
+        }
+        Log.e(debugTag, "inside fragment id is: "+stationId + " name is: "+stationName);
+//        Log.e(debugTag, stationName + " aaa");
+        title = getResources().getString(R.string.workers_frgmt_title) + " "+ stationName;
+        ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
+        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText("");
+        //((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
+//        getActivity().setTitle(title);
         check();
     }
 
@@ -113,6 +131,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(getResources().getString(R.string.workstation_id), stationId);
+        outState.putString("station_name", stationName);
     }
 
     @Override
@@ -132,7 +151,6 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     }
 
     private void initializeView() {
-        Log.e(debugTag, "INITIALIZE VIEW");
         mBinding.setProcessing(true);
 
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain))).create(APIInterface.class);
@@ -159,11 +177,11 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                             SharedPrefsUtl.setIntPref(getActivity(), stationId, getResources().getString(R.string.workstation_id));
 
 
-                            Log.e(debugTag, "STATION => "+SharedPrefsUtl.getIntFlag(getActivity(), getResources().getString(R.string.workstation_id)));
+//                            Log.e(debugTag, "STATION => "+SharedPrefsUtl.getIntFlag(getActivity(), getResources().getString(R.string.workstation_id)));
 
                             stationWorkerList = response.body().getData();
                             linearLayoutManager = new LinearLayoutManager(getActivity());
-                            Log.e(debugTag, mBinding.rcv + " rcv" + getActivity() + " context");
+//                            Log.e(debugTag, mBinding.rcv + " rcv" + getActivity() + " context");
                             if (rcvAdapter == null)mBinding.rcv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
                             rcvAdapter = new RecyclerViewAdapter(R.layout.station_workers_rcv_row) {
                                 @Override
@@ -207,8 +225,10 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     @Override
     public void onBaseViewClick(View view) {
         final StationWorker stationWorker = stationWorkerList.get((int)view.getTag());
+//        Log.e(debugTag, stationWorker.getUsername() + " username");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText edittext = new EditText(getActivity());
+        edittext.setInputType(InputType.TYPE_CLASS_NUMBER);
         builder.setTitle(getResources().getString(R.string.enter_worker_password_dialog_title));
         builder.setView(edittext);
         builder.setPositiveButton(getResources().getString(R.string.submit), new DialogInterface.OnClickListener() {
@@ -220,6 +240,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                     request.setAccess_token(accessToken);
                     request.setUsername(stationWorker.getUsername());
                     request.setPassword(edittext.getText().toString());
+                    request.setStation_id(stationId);
 
                     Call<ValidateWorkerResponse> responseCall = apiInterface.validateWorker(request);
                     responseCall.enqueue(new Callback<ValidateWorkerResponse>() {
@@ -230,15 +251,16 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 //                                Log.e(debugTag, response.headers().get("Set-Cookie") + "cki");
                                 SharedPrefsUtl.setStringPref(getActivity(), "cookie", response.headers().get("Set-Cookie"));
                                 SharedPrefsUtl.setStringPref(getActivity(), "end_url", response.body().getWorkstation_url());
+                                SharedPrefsUtl.setStringPref(getActivity(), "worker_username", stationWorker.getUsername());
                                 Headers headers = response.headers();
 
                                 getActivity().getSupportFragmentManager()
                                                                 .beginTransaction()
-                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url()), getResources().getString(R.string.system_dahsboard_frgmt))
+                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url(), stationName, stationWorker.getUsername()), getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .commit();
 
-                                Log.e(debugTag, "RESPONSE COOKIE =>" + cookie);
+//                                Log.e(debugTag, "RESPONSE COOKIE =>" + cookie);
                             } else {
                                 showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                             }
@@ -255,7 +277,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 
 
 //                Log.e(debugTag, edittext.getText().toString());
-//                if (edittext.getText().toString().equals("test")) {
+//                if (edittext.getText().toString().equals("provider_paths")) {
 //                    getActivity().getSupportFragmentManager()
 //                            .beginTransaction()
 //                            .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId), getResources().getString(R.string.system_dahsboard_frgmt))

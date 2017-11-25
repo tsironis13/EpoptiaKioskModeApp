@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">Εποπτία</string>
+    <string name="app_name">Epoptia</string>
     <string name="action_type">action_type</string>
     <string name="device_admin_description">device_admin_description</string>
 
     <string name="welcome">Καλωσήρθατε!</string>
+    <string name="image_desc">image_desc</string>
 
     <!-- Shared Prefs -->
     <string name="domain_authenticated">domain_authenticated</string>
@@ -11,6 +12,7 @@
     <string name="access_token">access_token</string>
     <string name="admin_username">admin_username</string>
     <string name="admin_password">admin_password</string>
+    <string name="is_working">is_working</string>
 
     <!-- Login Admin Activity -->
     <string name="subdomain">subdomain</string>
@@ -29,7 +31,7 @@
     <string name="work_stations_title">Σταθμοί Εργασίας</string>
     <string name="lock">Κλείδωμα</string>
     <string name="lock_device_dialog_title">Κλείδωμα συσκευής</string>
-    <string name="lock_device_dialog_msg">Η συσκευή θα κλειδώσει. Είσαι σίγουρος?</string>
+    <string name="lock_device_dialog_msg">Η συσκευή θα κλειδώσει. Είστε σίγουρος?</string>
     <string name="yes">Ναι</string>
     <string name="no">Οχι</string>
 
@@ -38,13 +40,16 @@
     <string name="system_dahsboard_frgmt">system_dahsboard_frgmt</string>
     <string name="top_backstack_entry_id">top_backstack_entry_id</string>
     <string name="workstation_id">workstation_id</string>
+    <string name="stationame">stationame</string>
 
-    <string name="workers_frgmt_title">Εργάτες σταθμού</string>
+    <string name="workers_frgmt_title">Εργαζόμενοι Σταθμού Εργασίας</string>
+    <string name="systemdash_frgmt_title">Στ. εργασίας</string>
 
+    <string name="image_uploading">Παρακαλώ περιμένετε…</string>
     <string name="retry">Ξαναπροσπαθησε</string>
     <string name="unlock">Ξεκλειδωμα</string>
     <string name="logout">Αποσύνδεση</string>
-    <string name="enter_worker_password_dialog_title">Κωδικός εργάτη</string>
+    <string name="enter_worker_password_dialog_title">Κωδικός Εργαζομένου</string>
     <string name="enter_admin_cred_dialog_title">Στοιχεία διαχειριστή</string>
 
 </resources>

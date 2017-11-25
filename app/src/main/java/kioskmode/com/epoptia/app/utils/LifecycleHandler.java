@@ -93,7 +93,7 @@ public class LifecycleHandler implements Application.ActivityLifecycleCallbacks 
                 }
             }
         } else {
-            Log.e(debugTag, "still foreground");
+//            Log.e(debugTag, "still foreground");
         }
     }
 
@@ -111,15 +111,15 @@ public class LifecycleHandler implements Application.ActivityLifecycleCallbacks 
                     foreground = false;
 //                    Log.e(debugTag, "went background");
                     for (AppStateListener l : listeners) {
-                        Log.e(debugTag, l + " LISTENER I");
+//                        Log.e(debugTag, l + " LISTENER I");
                         try {
                             l.onBecameBackground();
                         } catch (Exception exc) {
-                            Log.e(debugTag, "Listener threw exception!", exc);
+//                            Log.e(debugTag, "Listener threw exception!", exc);
                         }
                     }
                 } else {
-                    Log.e(debugTag, "still foreground");
+//                    Log.e(debugTag, "still foreground");
                 }
             }
         }, CHECK_DELAY);

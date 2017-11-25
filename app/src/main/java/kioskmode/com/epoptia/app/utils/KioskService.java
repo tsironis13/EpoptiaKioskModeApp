@@ -63,7 +63,7 @@ public class KioskService extends Service {
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                Log.e(debugTag, "SERVICE ACTIVATED -> service running");
+//                Log.e(debugTag, "SERVICE ACTIVATED -> service running");
                 KeyguardManager kgMgr = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
                 boolean showing = kgMgr.inKeyguardRestrictedInputMode();
                 Intent intent = new Intent(context, KioskModeActivity.class);

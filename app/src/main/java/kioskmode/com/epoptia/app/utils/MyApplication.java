@@ -40,6 +40,6 @@ public class MyApplication extends Application implements LifecycleHandler.AppSt
 //            startActivity(intent);
             startService(intent);
         }
-        Log.e(debugTag, "background app");
+//        Log.e(debugTag, "background app");
     }
 }
