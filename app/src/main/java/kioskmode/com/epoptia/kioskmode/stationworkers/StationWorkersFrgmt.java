@@ -228,7 +228,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 //        Log.e(debugTag, stationWorker.getUsername() + " username");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText edittext = new EditText(getActivity());
-        edittext.setInputType(InputType.TYPE_CLASS_NUMBER);
+        edittext.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setTitle(getResources().getString(R.string.enter_worker_password_dialog_title));
         builder.setView(edittext);
         builder.setPositiveButton(getResources().getString(R.string.submit), new DialogInterface.OnClickListener() {

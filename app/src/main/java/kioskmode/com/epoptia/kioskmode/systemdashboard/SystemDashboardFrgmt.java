@@ -67,7 +67,7 @@ public class SystemDashboardFrgmt extends Fragment {
     private File output;
     private Uri photoURI;
     private int ordertrackID;
-    private boolean imageUploading;
+    private boolean imageUploading, uploadImage;//uploadImage is used to check if image has to be uploaded to activities destroyed
 
     public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url, String stationName, String workerUsername) {
         Bundle bundle = new Bundle();
@@ -101,7 +101,13 @@ public class SystemDashboardFrgmt extends Fragment {
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain))).create(APIInterface.class);
         subdomain = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain));
         if (savedInstanceState != null) {
-
+            cookie = savedInstanceState.getString("cookie");
+            url = savedInstanceState.getString("url");
+            if (savedInstanceState.getBoolean("upload_image")) {
+                ordertrackID = savedInstanceState.getInt("ordertrackid");
+                output = (File) savedInstanceState.getSerializable("output");
+                uploadImage(output);
+            }
         } else {
 //            Log.e(debugTag, "onActivityCreated");
             if (getArguments() != null) {
@@ -128,14 +134,25 @@ public class SystemDashboardFrgmt extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.e(debugTag, "result code");
         if (requestCode == ACTION_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                Uri uri = null;
-                uri = imageUtls.getUriForFile(output);
+//                Uri uri = null;
+//                uri = imageUtls.getUriForFile(output);
                 uploadImage(output);
 
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("cookie", cookie);
+        outState.putString("url", url);
+        if (output != null) outState.putSerializable("output", output);
+        outState.putInt("ordertrackid", ordertrackID);
+        outState.putBoolean("upload_image", uploadImage);
     }
 
     @Override
@@ -192,14 +209,14 @@ public class SystemDashboardFrgmt extends Fragment {
     }
 
     @SuppressLint("AddJavascriptInterface")
-    private void initializeView() {
+    public void initializeView() {
         if (isNetworkAvailable()) {
             if (mBinding.getHaserror()) mBinding.setHaserror(false);
             CookieSyncManager cookieSyncManager = CookieSyncManager.createInstance(mBinding.webView.getContext());
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.setAcceptCookie(true);
             cookieManager.removeSessionCookie();
-//            Log.e(debugTag, cookie +  " COOKIE HERE");
+            Log.e(debugTag, cookie +  " COOKIE HERE: "+ url);
             cookieManager.setCookie(url, cookie);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -213,6 +230,7 @@ public class SystemDashboardFrgmt extends Fragment {
                 @JavascriptInterface           // For API 17+
                 public void performClick(int id)
                 {
+                    Log.e(debugTag, "clicked upload");
                     ordertrackID = id;
                     if (!imageUploading) openCamera();
 //                    Toast.makeText (getActivity(), ordertrackID+"", Toast.LENGTH_SHORT).show();
@@ -220,7 +238,13 @@ public class SystemDashboardFrgmt extends Fragment {
             }, "uploadPhoto");
             mBinding.webView.setWebViewClient(new WebViewClient());
 //            Log.e(debugTag, url + " url");
-            mBinding.webView.loadUrl(url);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mBinding.webView.loadUrl(url);
+//                mBinding.webView.evaluateJavascript(url, null);
+            } else {
+                mBinding.webView.loadUrl(url);
+            }
+
         } else {
             mBinding.setHaserror(true);
             mBinding.setErrortext(getResources().getString(R.string.no_connection));
@@ -250,7 +274,9 @@ public class SystemDashboardFrgmt extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Log.e(debugTag, output + " output");
             if (output != null) {
+                uploadImage = true;
                 photoURI = imageUtls.getUriForFile(output);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
@@ -287,9 +313,12 @@ public class SystemDashboardFrgmt extends Fragment {
             RequestBody token = RequestBody.create(okhttp3.MultipartBody.FORM, SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token)));
             RequestBody order_line_track_id = RequestBody.create(okhttp3.MultipartBody.FORM, ordertrackID+"");
             Call<UploadImageResponse> uploadImageCall = apiInterface.uploadImage(action, token, order_line_track_id, mfile);
+            Log.e(debugTag, "uploadingggg");
             uploadImageCall.enqueue(new Callback<UploadImageResponse>() {
                 @Override
                 public void onResponse(Call<UploadImageResponse> call, Response<UploadImageResponse> response) {
+                    uploadImage = false;
+                    Log.e(debugTag, "response code: "+response.body().getCode());
                     if (response.body().getCode() == 200) mBinding.webView.reload();
                     imageUploading = false;
                     snackbar.dismiss();
@@ -298,6 +327,7 @@ public class SystemDashboardFrgmt extends Fragment {
 
                 @Override
                 public void onFailure(Call<UploadImageResponse> call, Throwable t) {
+                    uploadImage = false;
                     imageUploading = false;
                     snackbar.dismiss();
                     deleteAppStorageImage(output);
