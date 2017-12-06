@@ -385,13 +385,13 @@ public class KioskModeActivity extends BaseActivity {
         return mBinding.incltoolbar.toolbarTitle;
     }
 
-    public TextView getToolbarTextViewUsernameLeft() {
-        return mBinding.incltoolbar.usernameLeftTtv;
-    }
-
-//    public TextView getToolbarTextViewUsernameRight() {
-//        return mBinding.incltoolbar.usernameRightTtv;
+//    public TextView getToolbarTextViewUsernameLeft() {
+//        return mBinding.incltoolbar.usernameLeftTtv;
 //    }
+
+    public TextView getToolbarTextViewUsernameRight() {
+        return mBinding.incltoolbar.usernameRightTtv;
+    }
 
     private static class CustomViewGroup extends ViewGroup {
         public CustomViewGroup(Context context) {

@@ -125,8 +125,8 @@ public class SystemDashboardFrgmt extends Fragment {
         if (stationName == null) stationName = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.stationame));
         if (workerUsername == null) workerUsername = SharedPrefsUtl.getStringFlag(getActivity(), "worker_username");
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(getResources().getString(R.string.systemdash_frgmt_title) + " " + stationName);
-        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText(workerUsername);
-        //((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText(workerUsername);
+//        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText(workerUsername);
+        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText(workerUsername);
 //        getActivity().setTitle(getResources().getString(R.string.systemdash_frgmt_title) + " " + stationName);
         initializeView();
     }

@@ -110,8 +110,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 //        Log.e(debugTag, stationName + " aaa");
         title = getResources().getString(R.string.workers_frgmt_title) + " "+ stationName;
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
-        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText("");
-        //((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
+//        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText("");
+        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
 //        getActivity().setTitle(title);
         check();
     }
