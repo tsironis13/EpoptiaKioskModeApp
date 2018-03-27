@@ -21,13 +21,6 @@ public class BaseActivity extends AppCompatActivity implements LifecycleHandler.
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            Log.e(debugTag, "savedInstanceState NOT NULL");
-//            removeListener = savedInstanceState.getBoolean("removeListener");
-//        } else {
-//            LifecycleHandler.get(this).addListener(this);
-//            Log.e(debugTag, "savedInstanceState NULL");
-//        }
     }
 
     @Override

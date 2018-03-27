@@ -18,12 +18,10 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onListenerConnected() {
         super.onListenerConnected();
-//        Log.e(debugTag, "onListenerCOnnected");
     }
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-//        Log.e(debugTag, "notification posted");
         cancelAllNotifications();
     }
 

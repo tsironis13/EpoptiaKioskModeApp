@@ -22,7 +22,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Log.e(debugTag, "boot completed");
         boolean locked = SharedPrefsUtl.getBooleanFlag(context, context.getResources().getString(R.string.device_locked));
         if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
             if (locked) {

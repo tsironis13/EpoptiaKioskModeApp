@@ -77,21 +77,11 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
         workStationsPresenter = new WorkStationsPresenter(this);
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(this, getResources().getString(R.string.subdomain))).create(APIInterface.class);
-
-        if (getSupportActionBar() != null) {
-
-        }
-//        intent = getIntent();
-//        Log.e(debugTag, "onCreate " + intent);
-
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
-        } else {
         }
-
         actionType = getIntent().getIntExtra(getResources().getString(R.string.action_type), 0);
         if (actionType == 1020) { //UNLOCK SCREEN
-//            Log.e(debugTag, "unlock screen FROM ON CREATE");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -138,7 +128,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     public void onBaseViewClick(View view) {
         stationId = workStations.get((int)view.getTag()).getId();
         stationName = workStations.get((int)view.getTag()).getName();
-        Log.e(debugTag, "StationId: "+stationId + " STATION NAME: "+stationName);
         lockDeviceDialog();
     }
 
@@ -159,7 +148,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
                 responseCall.enqueue(new Callback<GetWorkStationsResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<GetWorkStationsResponse> call, @NonNull Response<GetWorkStationsResponse> response) {
-//                        Log.e(debugTag, response.body().getCode()+ " CODE");
                         mBinding.setProcessing(false);
                         if (response.body() != null) {
                             if (response.body().getCode() == 200) {
@@ -237,7 +225,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        Log.e(debugTag, "onActivityResult Result code => " + resultCode + " Request code => " +requestCode);
         switch (requestCode) {
             case OVERLAY_PERMISSION_REQ_CODE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -294,9 +281,7 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
         packageManager.getPreferredActivities(filters, activities, null);
 
         for (ComponentName activity : activities) {
-//            Log.e(debugTag, activity.getPackageName() +" ACTIVITIES");
             if (myPackageName.equals(activity.getPackageName())) {
-//                Log.e(debugTag, myPackageName +" MY PACKAGE");
                 return true;
             }
         }
@@ -315,7 +300,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
     private void checkAppIsDefaultLauncher() {
         if (!isMyAppLauncherDefault()) {
-//            Log.e(debugTag, "my app is not default launcher");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
@@ -342,7 +326,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
             selector.putExtras(bundle);
             startActivity(selector);
         } else {
-//            Log.e(debugTag, "my app is default launcher");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);

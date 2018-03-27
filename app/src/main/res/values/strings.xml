@@ -46,6 +46,7 @@
     <string name="systemdash_frgmt_title">Στ. εργασίας</string>
 
     <string name="image_uploading">Παρακαλώ περιμένετε…</string>
+    <string name="image_uploaded_successfully">Η φωτογραφία ανέβηκε επιτυχώς.</string>
     <string name="retry">Ξαναπροσπαθησε</string>
     <string name="unlock">Ξεκλειδωμα</string>
     <string name="logout">Αποσύνδεση</string>

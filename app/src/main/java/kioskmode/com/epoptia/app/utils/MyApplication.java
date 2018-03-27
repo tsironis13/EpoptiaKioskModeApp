@@ -26,7 +26,6 @@ public class MyApplication extends Application implements LifecycleHandler.AppSt
 
     @Override
     public void onBecameForeground() {
-//        Log.e(debugTag, "foreground app");
         stopService(intent);
     }
 
@@ -40,6 +39,5 @@ public class MyApplication extends Application implements LifecycleHandler.AppSt
 //            startActivity(intent);
             startService(intent);
         }
-//        Log.e(debugTag, "background app");
     }
 }

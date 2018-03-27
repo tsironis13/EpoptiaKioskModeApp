@@ -31,11 +31,9 @@ public class SplashScreen extends BaseActivity {
         mBinding = DataBindingUtil.setContentView(this, R.layout.splash_screen);
         initializeApp();
         intent = getIntent();
-//        Log.e(debugTag, "onCreate " + intent);
 
         actionType = intent.getIntExtra(getResources().getString(R.string.action_type), 0);
         if (actionType == 1020) { //UNLOCK SCREEN
-//            Log.e(debugTag, "unlock screen FROM ON CREATE");
             PackageManager p = getPackageManager();
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
@@ -56,7 +54,6 @@ public class SplashScreen extends BaseActivity {
 //            actionType = intent.getExtras().getInt(getResources().getString(R.string.action_type));
             actionType = intent.getIntExtra(getResources().getString(R.string.action_type), 0);
             if (actionType == 1020) { //UNLOCK SCREEN
-//                Log.e(debugTag, "unlock screen FROM ON NEW INTENT");
                 PackageManager p = getPackageManager();
                 ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
                 p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);

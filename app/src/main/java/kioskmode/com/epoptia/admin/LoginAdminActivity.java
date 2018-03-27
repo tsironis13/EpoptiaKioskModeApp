@@ -86,7 +86,6 @@ public class LoginAdminActivity extends BaseActivity {
                     responseCall.enqueue(new Callback<ValidateAdminResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<ValidateAdminResponse> call, @NonNull Response<ValidateAdminResponse> response) {
-//                        Log.e(debugTag, response.body().getCode()+ " CODE");
                             mBinding.setProcessing(false);
                             if (response.body() != null) {
                                 if (response.body().getCode() == 200) {
@@ -134,7 +133,6 @@ public class LoginAdminActivity extends BaseActivity {
                     responseCall.enqueue(new Callback<ValidateCustomerDomainResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<ValidateCustomerDomainResponse> call, @NonNull Response<ValidateCustomerDomainResponse> response) {
-//                        Log.e(debugTag, response.body().getCode()+ " CODE");
                             mBinding.setProcessing(false);
                             if (response.body() != null) {
                                 if (response.body().getCode() == 200) {

@@ -71,7 +71,6 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        createWakeLocks();
 //        saveInstanceStateCalled = false;
         handler = new Handler();
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_kiosk_mode);
@@ -84,7 +83,6 @@ public class KioskModeActivity extends BaseActivity {
             cookie = savedInstanceState.getString("cookie");
             url = savedInstanceState.getString("url");
             if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
-//                Log.e(debugTag, "hereeeeeeeeeeeeee + aaa " + url);
                 getSupportFragmentManager().popBackStack();
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -98,7 +96,6 @@ public class KioskModeActivity extends BaseActivity {
             if (getIntent().getExtras() != null) {
                 stationId = getIntent().getExtras().getInt("station_id");
                 stationName = getIntent().getExtras().getString("station_name");
-                Log.e(debugTag, "here id is: "+stationId + " name is: "+ stationName);
             }
             initializeView();
         }
@@ -110,7 +107,6 @@ public class KioskModeActivity extends BaseActivity {
                 (new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
-                        Log.e(debugTag, visibility +  " chnaged");
                         uisystemvisibility = visibility;
                     }
                 });
@@ -119,7 +115,6 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        Log.e(debugTag, "onResume");
         preventStatusBarExpansion(this);
         handler.postDelayed(new Runnable() {
             public void run() {
@@ -163,7 +158,6 @@ public class KioskModeActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(runnable);
-//        Log.e(debugTag, "onPause");
         if (blockingView!=null) {
             WindowManager manager = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
             manager.removeView(blockingView);
@@ -182,7 +176,6 @@ public class KioskModeActivity extends BaseActivity {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName().equals(getResources().getString(R.string.system_dahsboard_frgmt)))
                 outState.putInt(getResources().getString(R.string.top_backstack_entry_id), topBackStackEntryId);
-//            Log.e(debugTag, getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName() + " aaaa");
         }
         viewDestroyed = true;
     }
@@ -204,7 +197,6 @@ public class KioskModeActivity extends BaseActivity {
 //            manager.removeView(blockingView);
         }
 //        LifecycleHandler.get(this).removeListener(this);
-//        Log.e(debugTag, "onDestroy");
     }
 
     @Override
@@ -220,12 +212,6 @@ public class KioskModeActivity extends BaseActivity {
                 .getSystemService(Context.ACTIVITY_SERVICE);
         activityManager.moveTaskToFront(getTaskId(), 0);
 
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        Log.e(debugTag, hasFocus + " focus changed");
     }
 
     @Override
@@ -271,7 +257,6 @@ public class KioskModeActivity extends BaseActivity {
         builder.setView(layout);
         builder.setPositiveButton(getResources().getString(R.string.unlock), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-//                Log.e(debugTag, edittext.getText().toString());
                 UnlockDeviceRequest request = new UnlockDeviceRequest();
                 request.setAccess_token(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.access_token)));
                 request.setAction("unlock_device");
@@ -325,7 +310,6 @@ public class KioskModeActivity extends BaseActivity {
         String prefsUrl = SharedPrefsUtl.getStringFlag(getApplicationContext(), "end_url");
         String workeruser = SharedPrefsUtl.getStringFlag(getApplicationContext(), "worker_username");
         workerUsername = workeruser;
-//        Log.e(debugTag, " cookie kiosk mode "+prefsCookie + " url kiosk mode "+prefsUrl);
         if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
             cookie = prefsCookie;
             url = prefsUrl;
@@ -355,7 +339,6 @@ public class KioskModeActivity extends BaseActivity {
     }
 
     public static void preventStatusBarExpansion(Context context) {
-//        Log.e(debugTag, "preventStatusBarExpansion");
         WindowManager manager = ((WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
 
         WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();

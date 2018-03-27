@@ -8,6 +8,12 @@
         android:title="@string/unlock"
         app:showAsAction="ifRoom" />
 
+    <!--<item-->
+        <!--android:id="@+id/unlockItem"-->
+        <!--android:title="@string/unlock"-->
+        <!--app:showAsAction="ifRoom"-->
+        <!--app:actionLayout="@layout/test" />-->
+
     <item
         android:id="@+id/logoutWorkerItem"
         android:icon="@drawable/ic_exit_to_app_white_24dp"

@@ -4,7 +4,8 @@
     <!-- android:layout_height="?android:attr/actionBarSize" -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_height="48dp"
+        android:paddingTop="10dp"
+        android:layout_height="68dp"
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:background="@color/colorPrimary"

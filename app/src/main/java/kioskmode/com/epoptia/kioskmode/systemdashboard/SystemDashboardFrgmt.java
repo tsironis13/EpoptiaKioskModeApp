@@ -20,11 +20,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import java.io.File;
@@ -54,20 +56,20 @@ import static android.app.Activity.RESULT_OK;
  * Created by giannis on 5/9/2017.
  */
 
-public class SystemDashboardFrgmt extends Fragment {
+public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchListener {
 
     private static final String debugTag = SystemDashboardFrgmt.class.getSimpleName();
     private View mView;
     private SystemDashboardFrgmtBinding mBinding;
     private int stationId;
     private String cookie, url, subdomain, end_url, stationName, workerUsername;
-    private APIInterface apiInterface;
+    private APIInterface apiInterface, customHeadersApiInterface;
     private ImageUtls imageUtls;
     private static final int ACTION_IMAGE_CAPTURE = 900;
     private File output;
     private Uri photoURI;
     private int ordertrackID;
-    private boolean imageUploading, uploadImage;//uploadImage is used to check if image has to be uploaded to activities destroyed
+    private boolean imageUploading, uploadImage, webviewIsDisabled;//uploadImage is used to check if image has to be uploaded to activities destroyed
 
     public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url, String stationName, String workerUsername) {
         Bundle bundle = new Bundle();
@@ -109,11 +111,9 @@ public class SystemDashboardFrgmt extends Fragment {
                 uploadImage(output);
             }
         } else {
-//            Log.e(debugTag, "onActivityCreated");
             if (getArguments() != null) {
                 cookie = getArguments().getString("cookie");
                 ((KioskModeActivity)getActivity()).setCookie(cookie);
-//                Log.e(debugTag, cookie + " COOKIE");
                 end_url = getArguments().getString("url");
                 url = "http://"+subdomain+".epoptia.com/"+end_url;
                 ((KioskModeActivity)getActivity()).setUrl(end_url);
@@ -134,7 +134,6 @@ public class SystemDashboardFrgmt extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e(debugTag, "result code");
         if (requestCode == ACTION_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
 //                Uri uri = null;
@@ -208,6 +207,12 @@ public class SystemDashboardFrgmt extends Fragment {
         }
     }
 
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        view.performClick();
+        return webviewIsDisabled;
+    }
+
     @SuppressLint("AddJavascriptInterface")
     public void initializeView() {
         if (isNetworkAvailable()) {
@@ -216,7 +221,6 @@ public class SystemDashboardFrgmt extends Fragment {
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.setAcceptCookie(true);
             cookieManager.removeSessionCookie();
-            Log.e(debugTag, cookie +  " COOKIE HERE: "+ url);
             cookieManager.setCookie(url, cookie);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -230,21 +234,12 @@ public class SystemDashboardFrgmt extends Fragment {
                 @JavascriptInterface           // For API 17+
                 public void performClick(int id)
                 {
-                    Log.e(debugTag, "clicked upload");
                     ordertrackID = id;
                     if (!imageUploading) openCamera();
-//                    Toast.makeText (getActivity(), ordertrackID+"", Toast.LENGTH_SHORT).show();
                 }
             }, "uploadPhoto");
             mBinding.webView.setWebViewClient(new WebViewClient());
-//            Log.e(debugTag, url + " url");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                mBinding.webView.loadUrl(url);
-//                mBinding.webView.evaluateJavascript(url, null);
-            } else {
-                mBinding.webView.loadUrl(url);
-            }
-
+            mBinding.webView.loadUrl(url);
         } else {
             mBinding.setHaserror(true);
             mBinding.setErrortext(getResources().getString(R.string.no_connection));
@@ -274,7 +269,6 @@ public class SystemDashboardFrgmt extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.e(debugTag, output + " output");
             if (output != null) {
                 uploadImage = true;
                 photoURI = imageUtls.getUriForFile(output);
@@ -305,28 +299,37 @@ public class SystemDashboardFrgmt extends Fragment {
     private void uploadImage(File file) {
         MultipartBody.Part mfile;
         final Snackbar snackbar = Snackbar.make(mBinding.containerLnlt, getResources().getString(R.string.image_uploading), Snackbar.LENGTH_INDEFINITE);
+        webviewIsDisabled = true;
+        mBinding.webView.setOnTouchListener(this);
         snackbar.show();
         imageUploading = true;
         try {
+            CookieManager cookieManager = CookieManager.getInstance();
+            String cookies = cookieManager.getCookie(url);
+
+            customHeadersApiInterface = APIClient.getClientWithCustomHeaders(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain)), cookies).create(APIInterface.class);
             mfile = imageUtls.getRequestFileBody(file);
             RequestBody action = RequestBody.create(okhttp3.MultipartBody.FORM, "upload_image");
             RequestBody token = RequestBody.create(okhttp3.MultipartBody.FORM, SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token)));
             RequestBody order_line_track_id = RequestBody.create(okhttp3.MultipartBody.FORM, ordertrackID+"");
-            Call<UploadImageResponse> uploadImageCall = apiInterface.uploadImage(action, token, order_line_track_id, mfile);
-            Log.e(debugTag, "uploadingggg");
+            Call<UploadImageResponse> uploadImageCall = customHeadersApiInterface.uploadImage(action, token, order_line_track_id, mfile);
             uploadImageCall.enqueue(new Callback<UploadImageResponse>() {
                 @Override
                 public void onResponse(Call<UploadImageResponse> call, Response<UploadImageResponse> response) {
                     uploadImage = false;
-                    Log.e(debugTag, "response code: "+response.body().getCode());
-                    if (response.body().getCode() == 200) mBinding.webView.reload();
-                    imageUploading = false;
                     snackbar.dismiss();
+                    webviewIsDisabled = false;
+                    if (response.body().getCode() == 200) {
+                        Snackbar.make(mBinding.containerLnlt, getResources().getString(R.string.image_uploaded_successfully), Snackbar.LENGTH_LONG).show();
+                        mBinding.webView.reload();
+                    }
+                    imageUploading = false;
                     deleteAppStorageImage(output);
                 }
 
                 @Override
                 public void onFailure(Call<UploadImageResponse> call, Throwable t) {
+                    webviewIsDisabled = false;
                     uploadImage = false;
                     imageUploading = false;
                     snackbar.dismiss();

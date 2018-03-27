@@ -31,11 +31,9 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Log.e(debugTag , "onReceive");
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean locked = preferences.getBoolean("locked", false);
         if (intent.getAction().equals("android.intent.action.PHONE_STATE")){
-//            Log.e(debugTag, "phone calling");
             if (locked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) notify(context, 1, 2, 12, null);
 //                final String numberCall = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);

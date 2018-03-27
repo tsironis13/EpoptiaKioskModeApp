@@ -84,16 +84,13 @@ public class LifecycleHandler implements Application.ActivityLifecycleCallbacks 
             handler.removeCallbacks(check);
 
         if (wasBackground){
-//            Log.e(debugTag, "went foreground");
             for (AppStateListener l : listeners) {
                 try {
                     l.onBecameForeground();
                 } catch (Exception exc) {
-//                    Log.e(TAG, "Listener threw exception!", exc);
+
                 }
             }
-        } else {
-//            Log.e(debugTag, "still foreground");
         }
     }
 
@@ -109,17 +106,12 @@ public class LifecycleHandler implements Application.ActivityLifecycleCallbacks 
             public void run() {
                 if (foreground && paused) {
                     foreground = false;
-//                    Log.e(debugTag, "went background");
                     for (AppStateListener l : listeners) {
-//                        Log.e(debugTag, l + " LISTENER I");
                         try {
                             l.onBecameBackground();
                         } catch (Exception exc) {
-//                            Log.e(debugTag, "Listener threw exception!", exc);
                         }
                     }
-                } else {
-//                    Log.e(debugTag, "still foreground");
                 }
             }
         }, CHECK_DELAY);
