@@ -10,7 +10,7 @@
 
         <variable
             name="presenter"
-            type="kioskmode.com.epoptia.kioskmode.stationworkers.StationWorkersPresenter" />
+            type="kioskmode.com.epoptia.kioskmodephone.stationworkers.StationWorkersPresenter" />
 
     </data>
 

@@ -44,6 +44,12 @@ public class LoginAdminActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_login_admin);
 
+        if (getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+            mBinding.deviceIsTabletTtv.setText(getResources().getString(R.string.device_is_tablet));
+        } else {
+            mBinding.deviceIsTabletTtv.setText(getResources().getString(R.string.device_is_phone));
+        }
+
         if (getSupportActionBar() != null) getSupportActionBar().hide();
 
         if (savedInstanceState != null) {

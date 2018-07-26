@@ -6,12 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.util.Log;
 
 import kioskmode.com.epoptia.admin.LoginAdminActivity;
 import kioskmode.com.epoptia.admin.WorkStationsActivity;
 import kioskmode.com.epoptia.databinding.SplashScreenBinding;
-import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
 
 public class SplashScreen extends BaseActivity {
@@ -38,13 +37,6 @@ public class SplashScreen extends BaseActivity {
             ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
             p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         }
-
-//        mBinding.lockBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                lockDevice();
-//            }
-//        });
     }
 
     @Override
@@ -75,7 +67,11 @@ public class SplashScreen extends BaseActivity {
         } else if (!locked) {
             startActivity(new Intent(SplashScreen.this, WorkStationsActivity.class));
         } else {
-            startActivity(new Intent(this, KioskModeActivity.class));
+            if (getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+                startActivity(new Intent(this, KioskModeActivity.class));
+            } else {
+                startActivity(new Intent(this, kioskmode.com.epoptia.kioskmodephone.KioskModeActivity.class));
+            }
         }
     }
 

@@ -18,13 +18,11 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,8 +34,7 @@ import java.util.List;
 import kioskmode.com.epoptia.BaseActivity;
 import kioskmode.com.epoptia.POJO.GetWorkStationsRequest;
 import kioskmode.com.epoptia.POJO.GetWorkStationsResponse;
-import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
-import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
 import kioskmode.com.epoptia.POJO.WorkStation;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
@@ -128,7 +125,18 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     public void onBaseViewClick(View view) {
         stationId = workStations.get((int)view.getTag()).getId();
         stationName = workStations.get((int)view.getTag()).getName();
-        lockDeviceDialog();
+
+        //tablet
+        if (getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+            lockDeviceDialog();
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putInt("station_id", stationId);
+            bundle.putString("station_name", stationName);
+            startActivity(new Intent(this, kioskmode.com.epoptia.kioskmodephone.KioskModeActivity.class).putExtras(bundle));
+
+            finish();
+        }
     }
 
     private void initializeWorkStations() {
@@ -210,16 +218,6 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
                 }
                 break;
             }
-//            case CALL_PHONE: {
-//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    if (ContextCompat.checkSelfPermission(SplashScreen.this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
-//                        Toast.makeText(this, "CALL_PHONE Permission granted!", Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    Toast.makeText(this, "No CALL_PHONE permission granted!", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-//            }
         }
     }
 

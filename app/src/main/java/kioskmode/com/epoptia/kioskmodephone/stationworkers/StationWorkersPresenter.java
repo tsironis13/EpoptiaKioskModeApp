@@ -1,8 +1,6 @@
-package kioskmode.com.epoptia.kioskmode.stationworkers;
+package kioskmode.com.epoptia.kioskmodephone.stationworkers;
 
 import android.view.View;
-
-import kioskmode.com.epoptia.admin.WordStationsContract;
 
 /**
  * Created by giannis on 5/9/2017.

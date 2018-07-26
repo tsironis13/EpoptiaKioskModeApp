@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.kioskmode.stationworkers;
+package kioskmode.com.epoptia.kioskmodetablet.stationworkers;
 
 /**
  * Created by giannis on 5/9/2017.

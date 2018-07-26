@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
 
 /**
  * Created by giannis on 26/8/2017.
@@ -64,7 +64,6 @@ public class KioskService extends Service {
             @Override
             public void run() {
                 KeyguardManager kgMgr = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-                boolean showing = kgMgr.inKeyguardRestrictedInputMode();
                 Intent intent = new Intent(context, KioskModeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);

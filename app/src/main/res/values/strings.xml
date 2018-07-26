@@ -9,6 +9,7 @@
     <!-- Shared Prefs -->
     <string name="domain_authenticated">domain_authenticated</string>
     <string name="device_locked">device_locked</string>
+    <string name="device_is_awake">device_powered_off</string>
     <string name="access_token">access_token</string>
     <string name="admin_username">admin_username</string>
     <string name="admin_password">admin_password</string>
@@ -26,6 +27,8 @@
     <string name="no_connection">Χωρίς σύνδεση στο δίκτυο.</string>
     <string name="username_password_required">Το όνομα χρήστη και ο κωδικός πρόσβασης είναι υποχρεωτικά.</string>
     <string name="username_password_invalid">Το όνομα χρήστη ή ο κωδικός πρόσβασης δεν είναι έγκυρα.</string>
+    <string name="device_is_tablet">Η συσκευή είναι κατηγορίας tablet.</string>
+    <string name="device_is_phone">Η συσκευή είναι κατηγορίας phone.</string>
 
     <!-- Work Stations Activity -->
     <string name="work_stations_title">Σταθμοί Εργασίας</string>

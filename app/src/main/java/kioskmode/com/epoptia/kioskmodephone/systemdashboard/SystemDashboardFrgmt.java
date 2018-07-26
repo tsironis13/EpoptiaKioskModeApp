@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.kioskmode.systemdashboard;
+package kioskmode.com.epoptia.kioskmodephone.systemdashboard;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -39,8 +39,8 @@ import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.app.utils.ImageUtls;
 import kioskmode.com.epoptia.databinding.SystemDashboardFrgmtBinding;
-import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
-import kioskmode.com.epoptia.kioskmode.stationworkers.StationWorkersFrgmt;
+import kioskmode.com.epoptia.kioskmodephone.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodephone.stationworkers.StationWorkersFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
@@ -91,6 +91,7 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
 
             mView = mBinding.getRoot();
         }
+
         return mView;
     }
 
@@ -229,6 +230,9 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 cookieSyncManager.sync();
             }
             mBinding.webView.getSettings().setJavaScriptEnabled(true);
+            mBinding.webView.getSettings().setBuiltInZoomControls(true);
+            mBinding.webView.getSettings().setDisplayZoomControls(false);
+
             mBinding.webView.addJavascriptInterface(new Object()
             {
                 @JavascriptInterface           // For API 17+
@@ -309,9 +313,9 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
 
             customHeadersApiInterface = APIClient.getClientWithCustomHeaders(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain)), cookies).create(APIInterface.class);
             mfile = imageUtls.getRequestFileBody(file);
-            RequestBody action = RequestBody.create(okhttp3.MultipartBody.FORM, "upload_image");
-            RequestBody token = RequestBody.create(okhttp3.MultipartBody.FORM, SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token)));
-            RequestBody order_line_track_id = RequestBody.create(okhttp3.MultipartBody.FORM, ordertrackID+"");
+            RequestBody action = RequestBody.create(MultipartBody.FORM, "upload_image");
+            RequestBody token = RequestBody.create(MultipartBody.FORM, SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token)));
+            RequestBody order_line_track_id = RequestBody.create(MultipartBody.FORM, ordertrackID+"");
             Call<UploadImageResponse> uploadImageCall = customHeadersApiInterface.uploadImage(action, token, order_line_track_id, mfile);
             uploadImageCall.enqueue(new Callback<UploadImageResponse>() {
                 @Override

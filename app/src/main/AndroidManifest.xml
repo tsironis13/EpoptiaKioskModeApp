@@ -47,7 +47,11 @@
             android:screenOrientation="landscape" />
 
         <activity
-            android:name=".kioskmode.KioskModeActivity"
+            android:name=".kioskmodephone.KioskModeActivity"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".kioskmodetablet.KioskModeActivity"
             android:enabled="false"
             android:launchMode="singleTop"
             android:screenOrientation="landscape"

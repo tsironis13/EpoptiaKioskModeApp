@@ -1,8 +1,7 @@
-package kioskmode.com.epoptia.kioskmode.stationworkers;
+package kioskmode.com.epoptia.kioskmodetablet.stationworkers;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.net.ConnectivityManager;
@@ -15,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,26 +24,20 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.List;
 
-import kioskmode.com.epoptia.POJO.GetWorkStationsRequest;
 import kioskmode.com.epoptia.POJO.GetWorkersRequest;
 import kioskmode.com.epoptia.POJO.GetWorkersResponse;
 import kioskmode.com.epoptia.POJO.StationWorker;
-import kioskmode.com.epoptia.POJO.ValidateAdminRequest;
-import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
 import kioskmode.com.epoptia.POJO.ValidateWorkerRequest;
 import kioskmode.com.epoptia.POJO.ValidateWorkerResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
-import kioskmode.com.epoptia.admin.LoginAdminActivity;
-import kioskmode.com.epoptia.admin.WorkStationsActivity;
 import kioskmode.com.epoptia.databinding.StationWorkersFrgmtBinding;
-import kioskmode.com.epoptia.kioskmode.KioskModeActivity;
-import kioskmode.com.epoptia.kioskmode.systemdashboard.SystemDashboardFrgmt;
+import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodetablet.systemdashboard.SystemDashboardFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
 import okhttp3.Headers;
-import okhttp3.internal.http2.Header;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -108,10 +100,16 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 
         title = getResources().getString(R.string.workers_frgmt_title) + " "+ stationName;
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
-//        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText("");
         ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
-//        getActivity().setTitle(title);
-        check();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (getActivity()!= null)
+                    check();
+            }
+        }, 500);
     }
 
     @Override
@@ -175,14 +173,14 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                             stationWorkerList = response.body().getData();
                             linearLayoutManager = new LinearLayoutManager(getActivity());
                             if (rcvAdapter == null)mBinding.rcv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-                            rcvAdapter = new RecyclerViewAdapter(R.layout.station_workers_rcv_row) {
+                            rcvAdapter = new RecyclerViewAdapter(R.layout.station_workers_tablet_rcv_row) {
                                 @Override
                                 protected Object getObjForPosition(int position, ViewDataBinding mBinding) {
                                     return stationWorkerList.get(position);
                                 }
                                 @Override
                                 protected int getLayoutIdForPosition(int position) {
-                                    return R.layout.station_workers_rcv_row;
+                                    return R.layout.station_workers_tablet_rcv_row;
                                 }
                                 @Override
                                 protected int getTotalItems() {
@@ -242,11 +240,10 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                                 SharedPrefsUtl.setStringPref(getActivity(), "cookie", response.headers().get("Set-Cookie"));
                                 SharedPrefsUtl.setStringPref(getActivity(), "end_url", response.body().getWorkstation_url());
                                 SharedPrefsUtl.setStringPref(getActivity(), "worker_username", stationWorker.getUsername());
-                                Headers headers = response.headers();
 
                                 getActivity().getSupportFragmentManager()
                                                                 .beginTransaction()
-                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url(), stationName, stationWorker.getUsername()), getResources().getString(R.string.system_dahsboard_frgmt))
+                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url(), stationName, stationWorker.getUsername(), "device"), getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .commit();
                             } else {

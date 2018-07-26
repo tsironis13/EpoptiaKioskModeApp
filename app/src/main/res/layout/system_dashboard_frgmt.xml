@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
             name="haserror"
+            type="boolean" />
+
+        <variable
+            name="loading"
             type="boolean" />
 
         <variable
@@ -19,6 +23,7 @@
         android:id="@+id/containerLnlt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/white"
         android:orientation="vertical">
 
         <LinearLayout
@@ -41,6 +46,17 @@
                 android:text="@string/retry" />
 
         </LinearLayout>
+
+        <com.rey.material.widget.ProgressView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
+            app:pv_autostart="true"
+            app:pv_circular="true"
+            app:pv_progressStyle="@style/Material.Drawable.CircularProgress"
+            app:pv_progressMode="indeterminate"
+            android:visibility="@{loading ? View.VISIBLE : View.GONE}" />
 
         <WebView
             android:id="@+id/webView"

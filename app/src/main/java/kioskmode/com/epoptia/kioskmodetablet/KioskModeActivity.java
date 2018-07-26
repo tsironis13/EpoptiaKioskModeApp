@@ -1,9 +1,11 @@
-package kioskmode.com.epoptia.kioskmode;
+package kioskmode.com.epoptia.kioskmodetablet;
 
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.graphics.PixelFormat;
@@ -33,9 +35,8 @@ import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.SplashScreen;
 import kioskmode.com.epoptia.app.utils.KioskService;
 import kioskmode.com.epoptia.databinding.ActivityKioskModeBinding;
-import kioskmode.com.epoptia.databinding.ToolbarBinding;
-import kioskmode.com.epoptia.kioskmode.stationworkers.StationWorkersFrgmt;
-import kioskmode.com.epoptia.kioskmode.systemdashboard.SystemDashboardFrgmt;
+import kioskmode.com.epoptia.kioskmodetablet.stationworkers.StationWorkersFrgmt;
+import kioskmode.com.epoptia.kioskmodetablet.systemdashboard.SystemDashboardFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
@@ -71,6 +72,14 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+//        intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
+//        intentFilter.addDataScheme("package");
+//        registerReceiver(myReceiver, intentFilter);
+
+
 //        saveInstanceStateCalled = false;
         handler = new Handler();
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_kiosk_mode);
@@ -84,13 +93,12 @@ public class KioskModeActivity extends BaseActivity {
             url = savedInstanceState.getString("url");
             if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
                 getSupportFragmentManager().popBackStack();
+
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername), getResources().getString(R.string.system_dahsboard_frgmt))
+                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, null), getResources().getString(R.string.system_dahsboard_frgmt))
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
-            } else {
-//                initializeView();
             }
         } else {
             if (getIntent().getExtras() != null) {
@@ -216,7 +224,7 @@ public class KioskModeActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.kiosk_mode_menu, menu);
+        getMenuInflater().inflate(R.menu.kiosk_mode_tablet_menu, menu);
         menu.findItem(R.id.logoutWorkerItem).setVisible(false);
         return true;
     }
@@ -313,9 +321,10 @@ public class KioskModeActivity extends BaseActivity {
         if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
             cookie = prefsCookie;
             url = prefsUrl;
+
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser), getResources().getString(R.string.system_dahsboard_frgmt))
+                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser, null), getResources().getString(R.string.system_dahsboard_frgmt))
                     .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                     .commit();
         } else {
