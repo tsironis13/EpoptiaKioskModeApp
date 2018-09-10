@@ -66,6 +66,7 @@ public class KioskModeActivity extends BaseActivity {
     private Runnable runnable;
     private String workerUsername;
     private int count = 0;
+    private int workerId;
     private long startMillis=0;
 
     @Override
@@ -87,7 +88,7 @@ public class KioskModeActivity extends BaseActivity {
 
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername), getResources().getString(R.string.system_dahsboard_frgmt))
+                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, workerId), getResources().getString(R.string.system_dahsboard_frgmt))
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
             }
@@ -114,54 +115,11 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        preventStatusBarExpansion(this);
-//        handler.postDelayed(new Runnable() {
-//            public void run() {
-//                //do something
-//                if (uisystemvisibility == 0) immersiveMode();
-//                runnable=this;
-//                handler.postDelayed(runnable, delay);
-//            }
-//        }, delay);
-//        mBinding.incltoolbar.logoImgv.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (!isNetworkAvailable()) {
-//                    //get system current milliseconds
-//                    long time= System.currentTimeMillis();
-//
-//                    //if it is the first time, or if it has been more than 3 seconds since the first tap ( so it is like a new try), we reset everything
-//                    if (startMillis==0 || (time-startMillis> 3000) ) {
-//                        startMillis=time;
-//                        count=1;
-//                    }
-//                    //it is not the first, and it has been less than 3 seconds since the first
-//                    else{ //  time-startMillis< 3000
-//                        count++;
-//                    }
-//                    if (count==5) {
-//                        SharedPrefsUtl.removeStringkey(KioskModeActivity.this, "cookie");
-//                        SharedPrefsUtl.setBooleanPref(KioskModeActivity.this, getResources().getString(R.string.device_locked), false);
-//                        Intent intent = new Intent(KioskModeActivity.this, SplashScreen.class);
-//                        intent.putExtra(getResources().getString(R.string.action_type), 1020);
-//                        startActivity(intent);
-//                        finish();
-//                    }
-//                }
-//            }
-//        });
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        handler.removeCallbacks(runnable);
-//        if (blockingView!=null) {
-//            WindowManager manager = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
-//            manager.removeView(blockingView);
-//            viewDestroyed = true;
-//        }
     }
 
     @Override
@@ -313,6 +271,7 @@ public class KioskModeActivity extends BaseActivity {
         String prefsCookie = SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie");
         String prefsUrl = SharedPrefsUtl.getStringFlag(getApplicationContext(), "end_url");
         String workeruser = SharedPrefsUtl.getStringFlag(getApplicationContext(), "worker_username");
+        workerId = SharedPrefsUtl.getIntFlag(getApplicationContext(), "worker_id");
         workerUsername = workeruser;
         if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
             cookie = prefsCookie;
@@ -320,7 +279,7 @@ public class KioskModeActivity extends BaseActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser), getResources().getString(R.string.system_dahsboard_frgmt))
+                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser, workerId), getResources().getString(R.string.system_dahsboard_frgmt))
                     .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                     .commit();
         } else {

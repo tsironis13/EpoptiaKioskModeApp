@@ -62,7 +62,7 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
     private static final String debugTag = SystemDashboardFrgmt.class.getSimpleName();
     private View mView;
     private SystemDashboardFrgmtBinding mBinding;
-    private int stationId;
+    private int stationId, workerId;
     private String cookie, url, subdomain, end_url, stationName, workerUsername;
     private APIInterface apiInterface, customHeadersApiInterface;
     private ImageUtls imageUtls;
@@ -72,13 +72,14 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
     private int ordertrackID, delay;
     private boolean imageUploading, uploadImage, webviewIsDisabled;//uploadImage is used to check if image has to be uploaded to activities destroyed
 
-    public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url, String stationName, String workerUsername, String action) {
+    public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url, String stationName, String workerUsername, int workerId, String action) {
         Bundle bundle = new Bundle();
         bundle.putInt("station_id", stationId);
         bundle.putString("cookie", cookie);
         bundle.putString("url", url);
         bundle.putString("station_name", stationName);
         bundle.putString("worker_username", workerUsername);
+        bundle.putInt("worker_id", workerId);
         //action => device, reboot
         bundle.putString("action", action);
         SystemDashboardFrgmt systemDashboardFrgmt = new SystemDashboardFrgmt();
@@ -130,15 +131,15 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 stationId = getArguments().getInt("station_id");
                 stationName = getArguments().getString("station_name");
                 workerUsername = getArguments().getString("worker_username");
+                workerId = getArguments().getInt("worker_id");
             }
         }
         //Log.e(debugTag, "URL: "+url);
         if (stationName == null) stationName = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.stationame));
         if (workerUsername == null) workerUsername = SharedPrefsUtl.getStringFlag(getActivity(), "worker_username");
+        if (workerId == 0) workerId = SharedPrefsUtl.getIntFlag(getActivity(), "worker_id");
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(getResources().getString(R.string.systemdash_frgmt_title) + " " + stationName);
-//        ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameLeft().setText(workerUsername);
         ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText(workerUsername);
-//        getActivity().setTitle(getResources().getString(R.string.systemdash_frgmt_title) + " " + stationName);
         initializeView();
     }
 
@@ -179,6 +180,7 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                     if (!imageUploading) {
                         LogoutWorkerRequest request = new LogoutWorkerRequest();
                         request.setAction("logout_worker");
+                        request.setUserId(workerId);
                         String accessToken = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token));
                         request.setAccess_token(accessToken);
                         /**

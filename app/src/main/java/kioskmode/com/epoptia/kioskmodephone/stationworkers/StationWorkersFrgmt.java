@@ -236,7 +236,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 
                                 getActivity().getSupportFragmentManager()
                                                                 .beginTransaction()
-                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url(), stationName, stationWorker.getUsername()), getResources().getString(R.string.system_dahsboard_frgmt))
+                                                                .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, response.body().getWorkstation_url(), stationName, stationWorker.getUsername(), stationWorker.getUserId()), getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                                                                 .commit();
                             } else {

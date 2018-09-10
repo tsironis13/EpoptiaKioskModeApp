@@ -6,6 +6,7 @@ package kioskmode.com.epoptia.POJO;
 
 public class StationWorker {
 
+    private int userId;
     private String name;
     private String username;
     private String password;
@@ -18,6 +19,10 @@ public class StationWorker {
 //        this.id = id;
 //    }
 
+
+    public int getUserId() {  return userId; }
+
+    public void setUserId(int userId) { this.userId = userId; }
 
     public String getName() { return name; }
 

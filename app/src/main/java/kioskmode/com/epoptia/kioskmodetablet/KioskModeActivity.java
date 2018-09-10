@@ -66,6 +66,7 @@ public class KioskModeActivity extends BaseActivity {
     private Handler handler;
     private Runnable runnable;
     private String workerUsername;
+    private int workerId;
     private int count = 0;
     private long startMillis=0;
 
@@ -96,7 +97,7 @@ public class KioskModeActivity extends BaseActivity {
 
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, null), getResources().getString(R.string.system_dahsboard_frgmt))
+                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, workerId, null), getResources().getString(R.string.system_dahsboard_frgmt))
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
             }
@@ -317,6 +318,7 @@ public class KioskModeActivity extends BaseActivity {
         String prefsCookie = SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie");
         String prefsUrl = SharedPrefsUtl.getStringFlag(getApplicationContext(), "end_url");
         String workeruser = SharedPrefsUtl.getStringFlag(getApplicationContext(), "worker_username");
+        workerId = SharedPrefsUtl.getIntFlag(getApplicationContext(), "worker_id");
         workerUsername = workeruser;
         if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
             cookie = prefsCookie;
@@ -324,7 +326,7 @@ public class KioskModeActivity extends BaseActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser, null), getResources().getString(R.string.system_dahsboard_frgmt))
+                    .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workeruser, workerId,null), getResources().getString(R.string.system_dahsboard_frgmt))
                     .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                     .commit();
         } else {
