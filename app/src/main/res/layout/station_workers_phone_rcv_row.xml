@@ -6,7 +6,7 @@
 
         <variable
             name="obj"
-            type="kioskmode.com.epoptia.POJO.StationWorker" />
+            type="kioskmode.com.epoptia.pojo.StationWorker" />
 
         <variable
             name="presenter"

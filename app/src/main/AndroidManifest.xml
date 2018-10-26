@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kioskmode.com.epoptia">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--<uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />-->
@@ -39,22 +40,18 @@
 
         <activity
             android:name=".admin.LoginAdminActivity"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
 
         <activity
-            android:name=".admin.WorkStationsActivity"
-            android:screenOrientation="landscape" />
+            android:name=".admin.WorkStationsActivity" />
 
         <activity
-            android:name=".kioskmodephone.KioskModeActivity"
-            android:screenOrientation="landscape" />
+            android:name=".kioskmodephone.KioskModeActivity" />
 
         <activity
             android:name=".kioskmodetablet.KioskModeActivity"
             android:enabled="false"
             android:launchMode="singleTop"
-            android:screenOrientation="landscape"
             android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,6 +59,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".app.utils.ConnectivityChangeReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".BootCompletedReceiver"
@@ -71,6 +74,13 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".PackageReplacedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
@@ -84,6 +94,11 @@
 
         <service
             android:name=".app.utils.KioskService"
+            android:enabled="true">
+        </service>
+
+        <service
+            android:name=".services.ConnectivityChangeService"
             android:enabled="true">
         </service>
 

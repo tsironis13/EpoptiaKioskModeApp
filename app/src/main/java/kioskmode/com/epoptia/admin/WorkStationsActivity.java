@@ -1,6 +1,7 @@
 package kioskmode.com.epoptia.admin;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,7 +11,12 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,28 +26,38 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.facebook.network.connectionclass.ConnectionClassManager;
+import com.facebook.network.connectionclass.ConnectionQuality;
+import com.facebook.network.connectionclass.DeviceBandwidthSampler;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import kioskmode.com.epoptia.BaseActivity;
-import kioskmode.com.epoptia.POJO.GetWorkStationsRequest;
-import kioskmode.com.epoptia.POJO.GetWorkStationsResponse;
+import kioskmode.com.epoptia.pojo.GetWorkStationsRequest;
+import kioskmode.com.epoptia.pojo.GetWorkStationsResponse;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
-import kioskmode.com.epoptia.POJO.WorkStation;
+import kioskmode.com.epoptia.pojo.WorkStation;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
 import kioskmode.com.epoptia.databinding.ActivityWorkStationsBinding;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,7 +66,7 @@ import retrofit2.Response;
  * Created by giannis on 5/9/2017.
  */
 
-public class WorkStationsActivity extends BaseActivity implements WordStationsContract.View{
+public class WorkStationsActivity extends BaseActivity implements WordStationsContract.View {
 
     private static final String debugTag = WorkStationsActivity.class.getSimpleName();
     private static final int PHONE_STATE = 1020;
@@ -64,6 +80,8 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     private int actionType, stationId;
     private APIInterface apiInterface;
     private String stationName;
+    private Handler networkStatusHandler;
+    private DeviceBandwidthSampler mDeviceBandwidthSampler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +89,8 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_work_stations);
         setSupportActionBar(mBinding.incltoolbar.toolbar);
         mBinding.incltoolbar.toolbarTitle.setText(getResources().getString(R.string.work_stations_title));
+
+        mDeviceBandwidthSampler = DeviceBandwidthSampler.getInstance();
 
         workStationsPresenter = new WorkStationsPresenter(this);
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(this, getResources().getString(R.string.subdomain))).create(APIInterface.class);
@@ -92,6 +112,19 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkNetworkStateEveryMinute();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("networkState"));
+    }
+
+    @Override
+    protected void onPause() {
+        networkStatusHandler.removeCallbacksAndMessages(null);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -338,7 +371,93 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+        return (cm != null ? cm.getActiveNetworkInfo() : null) != null && cm.getActiveNetworkInfo().isConnected();
     }
+
+    private void checkNetworkStateEveryMinute() {
+        networkStatusHandler = new Handler();
+        networkStatusHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
+                networkStatusHandler.postDelayed(this, 60000);
+            }
+        }, 1000);
+    }
+
+    private int getNetworkSpeed() {
+        startSampling();
+
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager != null ? wifiManager.getConnectionInfo() : null;
+        if (wifiInfo != null) {
+            return wifiInfo.getLinkSpeed(); //measured using WifiInfo.LINK_SPEED_UNITS
+        }
+        return -1;
+    }
+
+    private void startSampling() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://upload.wikimedia.org/wikipedia/commons/f/ff/Pizigani_1367_Chart_10MB.jpg")
+                .build();
+
+        mDeviceBandwidthSampler.startSampling();
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                mDeviceBandwidthSampler.stopSampling();
+                ConnectionQuality connectionQuality = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                mDeviceBandwidthSampler.stopSampling();
+                ConnectionQuality connectionQuality = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+
+                //Bandwidth under 150 kbps (1.2 Mbps).
+                if (connectionQuality == ConnectionQuality.POOR) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth between 150 and 550 kbps (4.4 Mbps)
+                else if (connectionQuality == ConnectionQuality.MODERATE) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth between 550 and 2000 kbps (16 Mbps)
+                else if (connectionQuality == ConnectionQuality.GOOD) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth over 2000 kbps (>16 Mbps)
+                else if (connectionQuality == ConnectionQuality.EXCELLENT) {
+                    mBinding.setNetworkState(null);
+                } else {
+                    mBinding.setNetworkState(null);
+                }
+            }
+        });
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            boolean networkStatus = intent.getBooleanExtra("networkState", false);
+            setNetworkStatusAndShowNetworkRelatedSnackbar(networkStatus);
+        }
+    };
+
+    private void setNetworkStatusAndShowNetworkRelatedSnackbar(boolean networkState) {
+        if (!networkState) {
+            mBinding.setNetworkState("NO INTERNET CONNECTION");
+
+            return;
+        }  else {
+            mBinding.setNetworkState(null);
+        }
+
+        //startSampling();
+    }
+
+
 
 }

@@ -1,16 +1,23 @@
 package kioskmode.com.epoptia.kioskmodetablet.stationworkers;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.net.ConnectivityManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,15 +27,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.facebook.network.connectionclass.ConnectionClassManager;
+import com.facebook.network.connectionclass.ConnectionQuality;
+import com.facebook.network.connectionclass.DeviceBandwidthSampler;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import kioskmode.com.epoptia.POJO.GetWorkersRequest;
-import kioskmode.com.epoptia.POJO.GetWorkersResponse;
-import kioskmode.com.epoptia.POJO.StationWorker;
-import kioskmode.com.epoptia.POJO.ValidateWorkerRequest;
-import kioskmode.com.epoptia.POJO.ValidateWorkerResponse;
+import kioskmode.com.epoptia.pojo.GetWorkersRequest;
+import kioskmode.com.epoptia.pojo.GetWorkersResponse;
+import kioskmode.com.epoptia.pojo.StationWorker;
+import kioskmode.com.epoptia.pojo.ValidateWorkerRequest;
+import kioskmode.com.epoptia.pojo.ValidateWorkerResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.adapters.RecyclerViewAdapter;
 import kioskmode.com.epoptia.databinding.StationWorkersFrgmtBinding;
@@ -37,7 +50,8 @@ import kioskmode.com.epoptia.kioskmodetablet.systemdashboard.SystemDashboardFrgm
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -59,6 +73,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     private int stationId;
     private AlertDialog mAlertDialog;
     private String stationName, title;
+    private Handler networkStatusHandler;
+    private DeviceBandwidthSampler mDeviceBandwidthSampler;
 
     public static StationWorkersFrgmt newInstance(int stationId, String stationName) {
         Bundle bundle = new Bundle();
@@ -82,7 +98,6 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        getActivity().setTitle(getResources().getString(R.string.workers_frgmt_title));
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
             stationName = savedInstanceState.getString("station_name");
@@ -97,8 +112,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
         } else {
             SharedPrefsUtl.setStringPref(getActivity(), getResources().getString(R.string.stationame), stationName);
         }
+        setToolbarTitle();
 
-        title = getResources().getString(R.string.workers_frgmt_title) + " "+ stationName;
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
         ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
 
@@ -110,6 +125,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                     check();
             }
         }, 500);
+
+        mDeviceBandwidthSampler = DeviceBandwidthSampler.getInstance();
     }
 
     @Override
@@ -121,6 +138,15 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                 initializeView();
             }
         });
+        checkNetworkStateEveryMinute();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, new IntentFilter("networkState"));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        networkStatusHandler.removeCallbacksAndMessages(null);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -151,7 +177,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
 
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain))).create(APIInterface.class);
         stationWorkersPresenter = new StationWorkersPresenter(this);
-        GetWorkersRequest request = new GetWorkersRequest();
+        final GetWorkersRequest request = new GetWorkersRequest();
         request.setAction("get_workers");
         String accessToken = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.access_token));
         request.setAccess_token(accessToken);
@@ -260,22 +286,33 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
                 } else {
                     showSnackBrMsg(getResources().getString(R.string.no_connection), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
                 }
-//                if (edittext.getText().toString().equals("provider_paths")) {
-//                    getActivity().getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId), getResources().getString(R.string.system_dahsboard_frgmt))
-//                            .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
-//                            .commit();
-//                }
             }
         });
         mAlertDialog = builder.create();
         mAlertDialog.show();
     }
 
+    private void setToolbarTitle() {
+        int currentOrientation = getResources().getConfiguration().orientation;
+
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            title = getResources().getString(R.string.workers_frgmt_title) + " " + stationName;
+        } else {
+            int stationNameLength = stationName.length();
+
+            if (stationNameLength > 19) {
+                String substr = stationName.substring(0, 19);
+
+                title = getResources().getString(R.string.workers_frgmt_portrait_title) + " " + substr + "...";
+            } else {
+                title = getResources().getString(R.string.workers_frgmt_portrait_title) + " " + stationName;
+            }
+        }
+    }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+        return (cm != null ? cm.getActiveNetworkInfo() : null) != null && cm.getActiveNetworkInfo().isConnected();
     }
 
     private void dismissDialog() {
@@ -287,4 +324,84 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
         snackbar.show();
     }
 
+    private void checkNetworkStateEveryMinute() {
+        networkStatusHandler = new Handler();
+        networkStatusHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
+                networkStatusHandler.postDelayed(this, 60000);
+            }
+        }, 1000);
+    }
+
+    private int getNetworkSpeed() {
+        WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager != null ? wifiManager.getConnectionInfo() : null;
+        if (wifiInfo != null) {
+            return wifiInfo.getLinkSpeed(); //measured using WifiInfo.LINK_SPEED_UNITS
+        }
+        return -1;
+    }
+
+    private void startSampling() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://upload.wikimedia.org/wikipedia/commons/f/ff/Pizigani_1367_Chart_10MB.jpg")
+                .build();
+
+        mDeviceBandwidthSampler.startSampling();
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                mDeviceBandwidthSampler.stopSampling();
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                mDeviceBandwidthSampler.stopSampling();
+                ConnectionQuality connectionQuality = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+
+                //Bandwidth under 150 kbps (1.2 Mbps).
+                if (connectionQuality == ConnectionQuality.POOR) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth between 150 and 550 kbps (4.4 Mbps)
+                else if (connectionQuality == ConnectionQuality.MODERATE) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth between 550 and 2000 kbps (16 Mbps)
+                else if (connectionQuality == ConnectionQuality.GOOD) {
+                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
+                }
+                //Bandwidth over 2000 kbps (>16 Mbps)
+                else if (connectionQuality == ConnectionQuality.EXCELLENT) {
+                    mBinding.setNetworkState(null);
+                } else {
+                    mBinding.setNetworkState(null);
+                }
+            }
+        });
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            boolean networkStatus = intent.getBooleanExtra("networkState", false);
+            setNetworkStatusAndShowNetworkRelatedSnackbar(networkStatus);
+        }
+    };
+
+    private void setNetworkStatusAndShowNetworkRelatedSnackbar(boolean networkState) {
+        if (!networkState) {
+            mBinding.setNetworkState("NO INTERNET CONNECTION");
+
+            return;
+        } else {
+            mBinding.setNetworkState(null);
+        }
+
+        //startSampling();
+    }
 }

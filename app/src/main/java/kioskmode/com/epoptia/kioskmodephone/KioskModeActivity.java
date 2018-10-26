@@ -1,36 +1,21 @@
 package kioskmode.com.epoptia.kioskmodephone;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
-import android.graphics.PixelFormat;
-import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import kioskmode.com.epoptia.BaseActivity;
-import kioskmode.com.epoptia.POJO.UnlockDeviceRequest;
-import kioskmode.com.epoptia.POJO.UnlockDeviceResponse;
 import kioskmode.com.epoptia.R;
-import kioskmode.com.epoptia.SplashScreen;
-import kioskmode.com.epoptia.admin.LoginAdminActivity;
 import kioskmode.com.epoptia.admin.WorkStationsActivity;
 import kioskmode.com.epoptia.app.utils.KioskService;
 import kioskmode.com.epoptia.databinding.ActivityKioskModeBinding;
@@ -39,9 +24,6 @@ import kioskmode.com.epoptia.kioskmodephone.systemdashboard.SystemDashboardFrgmt
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by giannis on 23/8/2017.
@@ -83,9 +65,7 @@ public class KioskModeActivity extends BaseActivity {
             stationName = savedInstanceState.getString("station_name");
             cookie = savedInstanceState.getString("cookie");
             url = savedInstanceState.getString("url");
-            if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
-                getSupportFragmentManager().popBackStack();
-
+            if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId && !SharedPrefsUtl.getStringFlag(this, "cookie").equals("cookie")) {
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, workerId), getResources().getString(R.string.system_dahsboard_frgmt))
@@ -99,17 +79,6 @@ public class KioskModeActivity extends BaseActivity {
             }
             initializeView();
         }
-//        LifecycleHandler.get(this).addListener(this);
-        //kioskService = new KioskService();
-        //SharedPrefsUtl.setBooleanPref(this, getResources().getString(R.string.device_locked), true);
-        //immersiveMode();
-//        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener
-//                (new View.OnSystemUiVisibilityChangeListener() {
-//                    @Override
-//                    public void onSystemUiVisibilityChange(int visibility) {
-//                        uisystemvisibility = visibility;
-//                    }
-//                });
     }
 
     @Override
@@ -151,31 +120,17 @@ public class KioskModeActivity extends BaseActivity {
             startActivity(new Intent(this, WorkStationsActivity.class));
             finish();
         }
-        //getSupportFragmentManager().popBackStack();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         dismissDialog();
-//        viewDestroyed = true;
-        //unlocked btn clicked
-        if (blockingView!=null && !viewDestroyed) {
-            WindowManager manager = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
-//            manager.removeView(blockingView);
-        }
-//        LifecycleHandler.get(this).removeListener(this);
     }
 
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-//        removeListener = true;
-//
-//        ActivityManager activityManager = (ActivityManager) getApplicationContext()
-//                .getSystemService(Context.ACTIVITY_SERVICE);
-//        activityManager.moveTaskToFront(getTaskId(), 0);
-
     }
 
     @Override
@@ -200,67 +155,6 @@ public class KioskModeActivity extends BaseActivity {
     public void setUrl(String url) {
         this.url = url;
     }
-
-//    private void unlockDevice() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle(getResources().getString(R.string.enter_admin_cred_dialog_title));
-//
-//        LinearLayout layout = new LinearLayout(this);
-//        layout.setOrientation(LinearLayout.VERTICAL);
-//
-//        final EditText admnUsernameEdt = new EditText(this);
-//        admnUsernameEdt.setHint(getResources().getString(R.string.admnusername_hint));
-//        layout.addView(admnUsernameEdt);
-//
-//        final EditText admnPasswordEdt = new EditText(this);
-//        admnPasswordEdt.setHint(getResources().getString(R.string.admnpassword_hint));
-//        layout.addView(admnPasswordEdt);
-//
-//        builder.setView(layout);
-//        builder.setPositiveButton(getResources().getString(R.string.unlock), new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int whichButton) {
-//                UnlockDeviceRequest request = new UnlockDeviceRequest();
-//                request.setAccess_token(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.access_token)));
-//                request.setAction("unlock_device");
-//                request.setCustomer_domain(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.subdomain)));
-//                request.setUsername(admnUsernameEdt.getText().toString());
-//                request.setPassword(admnPasswordEdt.getText().toString());
-//                Call<UnlockDeviceResponse> responseCall = apiInterface.unlockDevice(request);
-//
-//                if (isNetworkAvailable()) {
-//                    responseCall.enqueue(new Callback<UnlockDeviceResponse>() {
-//                        @Override
-//                        public void onResponse(Call<UnlockDeviceResponse> call, Response<UnlockDeviceResponse> response) {
-//                            if (response.body().getCode() == 200) {
-//                                SharedPrefsUtl.removeStringkey(KioskModeActivity.this, "cookie");
-//                                SharedPrefsUtl.setBooleanPref(KioskModeActivity.this, getResources().getString(R.string.device_locked), false);
-//                                Intent intent = new Intent(KioskModeActivity.this, SplashScreen.class);
-//                                intent.putExtra(getResources().getString(R.string.action_type), 1020);
-//                                startActivity(intent);
-//                                finish();
-//                            } else {
-//                                showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<UnlockDeviceResponse> call, Throwable t) {
-//                            showSnackBrMsg(getResources().getString(R.string.error), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
-//                        }
-//                    });
-//                } else {
-//                    showSnackBrMsg(getResources().getString(R.string.no_connection), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
-//                }
-////                if (admnUsernameEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_username))) &&
-////                        admnPasswordEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_password)))) {//
-////                } else {
-////                    showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
-////                }
-//            }
-//        });
-//        mAlertDialog = builder.create();
-//        mAlertDialog.show();
-//    }
 
     private void initializeView() {
         if (SharedPrefsUtl.getIntFlag(getApplicationContext(), getResources().getString(R.string.workstation_id)) != 0) {
@@ -290,51 +184,9 @@ public class KioskModeActivity extends BaseActivity {
         }
     }
 
-//    private void immersiveMode() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//            getWindow().getDecorView().setSystemUiVisibility(
-//                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
-//        }
-//    }
-
-//    public static void preventStatusBarExpansion(Context context) {
-//        WindowManager manager = ((WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
-//
-//        WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
-//        localLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
-//        localLayoutParams.gravity = Gravity.TOP;
-//        localLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-//
-//        localLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-//
-//        int resId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-//        int result = 0;
-//        if (resId > 0) {
-//            result = context.getResources().getDimensionPixelSize(resId);
-//        } else {
-//            // Use Fallback size:
-//            result = 60; // 60px Fallback
-//        }
-//
-//        localLayoutParams.height = result;
-//        localLayoutParams.format = PixelFormat.TRANSPARENT;
-//
-//        blockingView = new CustomViewGroup(context);
-//        manager.addView(blockingView, localLayoutParams);
-//    }
-
     public TextView getToolbarTextViewTitle() {
         return mBinding.incltoolbar.toolbarTitle;
     }
-
-//    public TextView getToolbarTextViewUsernameLeft() {
-//        return mBinding.incltoolbar.usernameLeftTtv;
-//    }
 
     public TextView getToolbarTextViewUsernameRight() {
         return mBinding.incltoolbar.usernameRightTtv;
@@ -358,11 +210,6 @@ public class KioskModeActivity extends BaseActivity {
 
     private void dismissDialog() {
         if (mAlertDialog != null && mAlertDialog.isShowing()) mAlertDialog.dismiss();
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 
 }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -24,6 +25,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
@@ -34,13 +37,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import kioskmode.com.epoptia.POJO.LogoutWorkerRequest;
-import kioskmode.com.epoptia.POJO.UploadImageResponse;
-import kioskmode.com.epoptia.POJO.ValidateAdminResponse;
+import kioskmode.com.epoptia.pojo.LogoutWorkerRequest;
+import kioskmode.com.epoptia.pojo.UploadImageResponse;
+import kioskmode.com.epoptia.pojo.ValidateAdminResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.app.utils.ImageUtls;
 import kioskmode.com.epoptia.databinding.SystemDashboardFrgmtBinding;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
+import kioskmode.com.epoptia.kioskmodetablet.pdfviewer.PdfViewerFrgmt;
 import kioskmode.com.epoptia.kioskmodetablet.stationworkers.StationWorkersFrgmt;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
@@ -109,7 +113,9 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
         subdomain = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.subdomain));
         if (savedInstanceState != null) {
             cookie = savedInstanceState.getString("cookie");
-            url = savedInstanceState.getString("url");
+            end_url = savedInstanceState.getString("url");
+            stationId = savedInstanceState.getInt("station_id");
+
             if (savedInstanceState.getBoolean("upload_image")) {
                 ordertrackID = savedInstanceState.getInt("ordertrackid");
                 output = (File) savedInstanceState.getSerializable("output");
@@ -126,7 +132,6 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 cookie = getArguments().getString("cookie");
                 ((KioskModeActivity)getActivity()).setCookie(cookie);
                 end_url = getArguments().getString("url");
-                url = "http://"+subdomain+".epoptia.com/"+end_url;
                 ((KioskModeActivity)getActivity()).setUrl(end_url);
                 stationId = getArguments().getInt("station_id");
                 stationName = getArguments().getString("station_name");
@@ -134,13 +139,16 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 workerId = getArguments().getInt("worker_id");
             }
         }
+        url = constructFullUrl(end_url);
         //Log.e(debugTag, "URL: "+url);
         if (stationName == null) stationName = SharedPrefsUtl.getStringFlag(getActivity(), getResources().getString(R.string.stationame));
         if (workerUsername == null) workerUsername = SharedPrefsUtl.getStringFlag(getActivity(), "worker_username");
         if (workerId == 0) workerId = SharedPrefsUtl.getIntFlag(getActivity(), "worker_id");
-        ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(getResources().getString(R.string.systemdash_frgmt_title) + " " + stationName);
+        setToolbarTitle();
         ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText(workerUsername);
-        initializeView();
+        if (getActivity() != null && isAdded()) {
+            initializeView();
+        }
     }
 
     @Override
@@ -148,10 +156,7 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ACTION_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-//                Uri uri = null;
-//                uri = imageUtls.getUriForFile(output);
                 uploadImage(output);
-
             }
         }
     }
@@ -160,10 +165,11 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("cookie", cookie);
-        outState.putString("url", url);
+        outState.putString("url", end_url);
         if (output != null) outState.putSerializable("output", output);
         outState.putInt("ordertrackid", ordertrackID);
         outState.putBoolean("upload_image", uploadImage);
+        outState.putInt("station_id", stationId);
     }
 
     @Override
@@ -193,15 +199,11 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                                 if (response.body().getCode() == 200) {
                                     if (getActivity() != null) {
                                         SharedPrefsUtl.removeStringkey(getActivity(), "cookie");
-                                        if (getActivity().getSupportFragmentManager().getBackStackEntryCount() == 1) {
-                                            getActivity().getSupportFragmentManager()
+
+                                        getActivity().getSupportFragmentManager()
                                                     .beginTransaction()
                                                     .replace(R.id.kioskModeLlt, StationWorkersFrgmt.newInstance(stationId, stationName), getResources().getString(R.string.station_workers_frgmt))
                                                     .commit();
-                                            getActivity().getSupportFragmentManager().popBackStack();
-                                        } else {
-                                            getActivity().getSupportFragmentManager().popBackStack();
-                                        }
                                     }
                                 } else {
                                     showSnackBrMsg(getResources().getString(R.string.error), mBinding.containerLnlt, Snackbar.LENGTH_SHORT);
@@ -237,51 +239,112 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
             @Override
             public void run() {
                 mBinding.setLoading(false);
-                if (isNetworkAvailable()) {
-                    if (mBinding.getHaserror()) mBinding.setHaserror(false);
-                    CookieSyncManager cookieSyncManager = CookieSyncManager.createInstance(mBinding.webView.getContext());
-                    CookieManager cookieManager = CookieManager.getInstance();
-                    cookieManager.setAcceptCookie(true);
-                    cookieManager.removeSessionCookie();
-                    cookieManager.setCookie(url, cookie);
+                if (getActivity() != null && isAdded()) {
+                    if (isNetworkAvailable()) {
+                        if (mBinding.getHaserror()) mBinding.setHaserror(false);
+                        CookieSyncManager cookieSyncManager = CookieSyncManager.createInstance(mBinding.webView.getContext());
+                        CookieManager cookieManager = CookieManager.getInstance();
+                        cookieManager.setAcceptCookie(true);
+                        cookieManager.removeSessionCookie();
+                        cookieManager.setCookie(url, cookie);
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        cookieManager.flush();
-                    } else {
-                        cookieSyncManager.sync();
-                    }
-                    mBinding.webView.getSettings().setJavaScriptEnabled(true);
-                    mBinding.webView.getSettings().setBuiltInZoomControls(true);
-                    mBinding.webView.getSettings().setDisplayZoomControls(false);
-
-                    mBinding.webView.addJavascriptInterface(new Object()
-                    {
-                        @JavascriptInterface           // For API 17+
-                        public void performClick(int id)
-                        {
-                            ordertrackID = id;
-                            if (!imageUploading) openCamera();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            cookieManager.flush();
+                        } else {
+                            cookieSyncManager.sync();
                         }
-                    }, "uploadPhoto");
-                    mBinding.webView.setWebViewClient(new WebViewClient());
-                    mBinding.webView.loadUrl(url);
-                } else {
-                    mBinding.setHaserror(true);
-                    mBinding.setErrortext(getResources().getString(R.string.no_connection));
+                        mBinding.webView.getSettings().setJavaScriptEnabled(true);
+                        mBinding.webView.getSettings().setBuiltInZoomControls(true);
+                        mBinding.webView.getSettings().setDisplayZoomControls(false);
+
+                        mBinding.webView.addJavascriptInterface(new Object()
+                        {
+                            @JavascriptInterface           // For API 17+
+                            public void performClick(int id)
+                            {
+                                ordertrackID = id;
+                                if (!imageUploading) openCamera();
+                            }
+                        }, "uploadPhoto");
+                        mBinding.webView.addJavascriptInterface(new Object()
+                        {
+                            @JavascriptInterface           // For API 17+
+                            public void performClick(String path)
+                            {
+                                getActivity().getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.kioskModeLlt, PdfViewerFrgmt.newInstance(path, stationId, cookie, end_url, stationName, workerUsername, workerId), getResources().getString(R.string.pdfviewer_frgmt))
+                                        .addToBackStack(getResources().getString(R.string.pdfviewer_frgmt))
+                                        .commit();
+                            }
+                        }, "pdfView");
+                        mBinding.webView.addJavascriptInterface(new Object()
+                        {
+                            @JavascriptInterface           // For API 17+
+                            public void onHiddenInputFocusOnBarcodeHit()
+                            {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        hideKeyboard();
+                                    }
+                                }, 500);
+                            }
+                        }, "barcode");
+                        mBinding.webView.setWebViewClient(new WebViewClient());
+                        mBinding.webView.loadUrl(url);
+                    } else {
+                        mBinding.setHaserror(true);
+                        mBinding.setErrortext(getResources().getString(R.string.no_connection));
+                    }
                 }
             }
         }, delay);
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getActivity().getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(getActivity());
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+
+    private boolean isNetworkAvailable() {
+        if (getActivity() == null) return false;
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        return (cm != null ? cm.getActiveNetworkInfo() : null) != null && cm.getActiveNetworkInfo().isConnected();
     }
 
     public void showSnackBrMsg(String msg, View container, int length) {
         Snackbar snackbar = Snackbar.make(container, msg, length);
         snackbar.show();
+    }
+
+    private void setToolbarTitle() {
+        int currentOrientation = getResources().getConfiguration().orientation;
+
+        String title;
+
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            title = getResources().getString(R.string.workers_frgmt_title) + " " + stationName;
+        } else {
+            int stationNameLength = stationName.length();
+
+            if (stationNameLength > 15) {
+                String substr = stationName.substring(0, 15);
+
+                title = getResources().getString(R.string.workers_frgmt_portrait_title) + " " + substr + "...";
+            } else {
+                title = getResources().getString(R.string.workers_frgmt_portrait_title) + " " + stationName;
+            }
+        }
+
+        ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
     }
 
     private void deleteAppStorageImage(File file) {
@@ -319,8 +382,6 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 }
                 startActivityForResult(intent, ACTION_IMAGE_CAPTURE);
             }
-        } else {
-//            showSnackBar(R.style.SnackBarMultiLine, getResources().getString(R.string.no_camera_available), "").subscribe();
         }
     }
 
@@ -367,5 +428,9 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+    }
+
+    private String constructFullUrl(String url) {
+        return "http://"+subdomain+".epoptia.com/"+url;
     }
 }

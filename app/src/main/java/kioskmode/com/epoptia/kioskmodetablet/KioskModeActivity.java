@@ -1,11 +1,9 @@
 package kioskmode.com.epoptia.kioskmodetablet;
 
 import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.graphics.PixelFormat;
@@ -16,7 +14,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,8 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import kioskmode.com.epoptia.BaseActivity;
-import kioskmode.com.epoptia.POJO.UnlockDeviceRequest;
-import kioskmode.com.epoptia.POJO.UnlockDeviceResponse;
+import kioskmode.com.epoptia.pojo.UnlockDeviceRequest;
+import kioskmode.com.epoptia.pojo.UnlockDeviceResponse;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.SplashScreen;
 import kioskmode.com.epoptia.app.utils.KioskService;
@@ -59,7 +56,7 @@ public class KioskModeActivity extends BaseActivity {
     private View mDecorView;
     private static final int topBackStackEntryId = 2060;
     private int stationId, uisystemvisibility, delay = 1000;
-    private String stationName;
+    private String stationName, action;
     private AlertDialog mAlertDialog;
     private String cookie, url;
     private APIInterface apiInterface;
@@ -73,15 +70,6 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        IntentFilter intentFilter = new IntentFilter();
-//        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-//        intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
-//        intentFilter.addDataScheme("package");
-//        registerReceiver(myReceiver, intentFilter);
-
-
-//        saveInstanceStateCalled = false;
         handler = new Handler();
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_kiosk_mode);
         setSupportActionBar(mBinding.incltoolbar.toolbar);
@@ -92,16 +80,18 @@ public class KioskModeActivity extends BaseActivity {
             stationName = savedInstanceState.getString("station_name");
             cookie = savedInstanceState.getString("cookie");
             url = savedInstanceState.getString("url");
-            if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId) {
-                getSupportFragmentManager().popBackStack();
+            action = savedInstanceState.getString("action");
 
+            if (savedInstanceState.getInt(getResources().getString(R.string.top_backstack_entry_id)) == topBackStackEntryId && !SharedPrefsUtl.getStringFlag(this, "cookie").equals("cookie")) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, workerId, null), getResources().getString(R.string.system_dahsboard_frgmt))
+                        .replace(R.id.kioskModeLlt, SystemDashboardFrgmt.newInstance(stationId, cookie, url, stationName, workerUsername, workerId, action), getResources().getString(R.string.system_dahsboard_frgmt))
                         .addToBackStack(getResources().getString(R.string.system_dahsboard_frgmt))
                         .commit();
             }
+            action = "device";
         } else {
+            action = "device";
             if (getIntent().getExtras() != null) {
                 stationId = getIntent().getExtras().getInt("station_id");
                 stationName = getIntent().getExtras().getString("station_name");
@@ -160,7 +150,6 @@ public class KioskModeActivity extends BaseActivity {
                 }
             }
         });
-
     }
 
     @Override
@@ -181,7 +170,7 @@ public class KioskModeActivity extends BaseActivity {
         outState.putString("cookie", cookie);
         outState.putString("station_name", stationName);
         outState.putString("url", url);
-//        outState.putString("url", "");
+        outState.putString("action", action);
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName().equals(getResources().getString(R.string.system_dahsboard_frgmt)))
                 outState.putInt(getResources().getString(R.string.top_backstack_entry_id), topBackStackEntryId);
@@ -298,11 +287,6 @@ public class KioskModeActivity extends BaseActivity {
                 } else {
                     showSnackBrMsg(getResources().getString(R.string.no_connection), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
                 }
-//                if (admnUsernameEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_username))) &&
-//                        admnPasswordEdt.getText().toString().equals(SharedPrefsUtl.getStringFlag(KioskModeActivity.this, getResources().getString(R.string.admin_password)))) {//
-//                } else {
-//                    showSnackBrMsg(getResources().getString(R.string.username_password_invalid), mBinding.kioskModeLlt, Snackbar.LENGTH_SHORT);
-//                }
             }
         });
         mAlertDialog = builder.create();
@@ -409,7 +393,7 @@ public class KioskModeActivity extends BaseActivity {
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+        return (cm != null ? cm.getActiveNetworkInfo() : null) != null && cm.getActiveNetworkInfo().isConnected();
     }
 
 }

@@ -1,13 +1,13 @@
-package kioskmode.com.epoptia.POJO;
+package kioskmode.com.epoptia.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by giannis on 28/9/2017.
+ * Created by thomatou on 9/25/17.
  */
 
-public class UnlockDeviceRequest {
+public class ValidateWorkerRequest {
 
     @SerializedName("action")
     @Expose
@@ -15,15 +15,15 @@ public class UnlockDeviceRequest {
     @SerializedName("access_token")
     @Expose
     private String access_token;
-    @SerializedName("customer_domain")
-    @Expose
-    private String customer_domain;
     @SerializedName("username")
     @Expose
     private String username;
     @SerializedName("password")
     @Expose
     private String password;
+    @SerializedName("workstation_id")
+    @Expose
+    private int station_id;
 
     public String getAction() {
         return action;
@@ -41,14 +41,6 @@ public class UnlockDeviceRequest {
         this.access_token = access_token;
     }
 
-    public String getCustomer_domain() {
-        return customer_domain;
-    }
-
-    public void setCustomer_domain(String customer_domain) {
-        this.customer_domain = customer_domain;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -64,4 +56,8 @@ public class UnlockDeviceRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getStation_id() { return station_id; }
+
+    public void setStation_id(int station_id) { this.station_id = station_id; }
 }

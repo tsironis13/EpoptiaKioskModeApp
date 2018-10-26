@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.POJO;
+package kioskmode.com.epoptia.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by giannis on 18/9/2017.
  */
 
-public class ValidateAdminResponse {
+public class ValidateCustomerDomainResponse {
 
     @SerializedName("code")
     @Expose
@@ -24,11 +24,7 @@ public class ValidateAdminResponse {
         this.code = code;
     }
 
-    public String getAccess_token() {
-        return access_token;
-    }
+    public String getAccess_token() { return access_token; }
 
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
-    }
+    public void setAccess_token(String access_token) { this.access_token = access_token; }
 }

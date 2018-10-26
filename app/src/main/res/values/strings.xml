@@ -41,11 +41,13 @@
     <!-- Kiosk Mode Activity -->
     <string name="station_workers_frgmt">station_workers_frgmt</string>
     <string name="system_dahsboard_frgmt">system_dahsboard_frgmt</string>
+    <string name="pdfviewer_frgmt">pdfviewer_frgmt</string>
     <string name="top_backstack_entry_id">top_backstack_entry_id</string>
     <string name="workstation_id">workstation_id</string>
     <string name="stationame">stationame</string>
 
     <string name="workers_frgmt_title">Εργαζόμενοι Σταθμού Εργασίας</string>
+    <string name="workers_frgmt_portrait_title">Εργ. Στ.</string>
     <string name="systemdash_frgmt_title">Στ. εργασίας</string>
 
     <string name="image_uploading">Παρακαλώ περιμένετε…</string>

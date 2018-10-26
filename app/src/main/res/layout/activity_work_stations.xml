@@ -15,11 +15,16 @@
             name="errortext"
             type="String" />
 
+        <variable
+            name="networkState"
+            type="String" />
+
         <import type="android.view.View" />
 
     </data>
 
     <LinearLayout
+        android:id="@+id/baseLlt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -27,6 +32,26 @@
         <include
             android:id="@+id/incltoolbar"
             layout="@layout/toolbar" />
+
+        <RelativeLayout
+            android:id="@+id/networkStatusLlt"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="#FFCDD2"
+            android:visibility="@{networkState != null ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:id="@+id/networkStateTtv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#F44336"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="@{networkState}" />
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -66,7 +91,5 @@
             android:visibility="@{!processing &amp;&amp; !haserror ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
-
-
 
 </layout>

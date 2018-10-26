@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.POJO;
+package kioskmode.com.epoptia.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

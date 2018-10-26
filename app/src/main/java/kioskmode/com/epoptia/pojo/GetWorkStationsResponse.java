@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.POJO;
+package kioskmode.com.epoptia.pojo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -9,14 +9,14 @@ import java.util.List;
  * Created by giannis on 18/9/2017.
  */
 
-public class GetWorkersResponse {
+public class GetWorkStationsResponse {
 
     @SerializedName("code")
     @Expose
     private int code;
-    @SerializedName("workers")
+    @SerializedName("workstations")
     @Expose
-    private List<StationWorker> workers;
+    private List<WorkStation> workstations;
 
     public int getCode() {
         return code;
@@ -26,12 +26,11 @@ public class GetWorkersResponse {
         this.code = code;
     }
 
-    public List<StationWorker> getData() {
-        return workers;
+    public List<WorkStation> getData() {
+        return workstations;
     }
 
-    public void setData(List<StationWorker> workers) {
-        this.workers = workers;
+    public void setData(List<WorkStation> workstations) {
+        this.workstations = workstations;
     }
-
 }

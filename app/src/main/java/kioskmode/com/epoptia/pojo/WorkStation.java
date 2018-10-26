@@ -1,4 +1,4 @@
-package kioskmode.com.epoptia.POJO;
+package kioskmode.com.epoptia.pojo;
 
 /**
  * Created by giannis on 5/9/2017.
