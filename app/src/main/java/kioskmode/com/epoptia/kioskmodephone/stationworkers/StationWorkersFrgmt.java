@@ -29,14 +29,15 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.facebook.network.connectionclass.ConnectionClassManager;
-import com.facebook.network.connectionclass.ConnectionQuality;
-import com.facebook.network.connectionclass.DeviceBandwidthSampler;
-
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.bmartel.speedtest.SpeedTestReport;
+import fr.bmartel.speedtest.SpeedTestSocket;
+import fr.bmartel.speedtest.inter.ISpeedTestListener;
+import fr.bmartel.speedtest.model.SpeedTestError;
 import kioskmode.com.epoptia.pojo.GetWorkersRequest;
 import kioskmode.com.epoptia.pojo.GetWorkersResponse;
 import kioskmode.com.epoptia.pojo.StationWorker;
@@ -50,8 +51,6 @@ import kioskmode.com.epoptia.kioskmodephone.systemdashboard.SystemDashboardFrgmt
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -74,8 +73,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     private AlertDialog mAlertDialog;
     private String stationName, title;
     private Handler networkStatusHandler;
-    private ConnectionClassManager mConnectionClassManager;
-    private DeviceBandwidthSampler mDeviceBandwidthSampler;
+    private SpeedTestSocket speedTestSocket;
 
     public static StationWorkersFrgmt newInstance(int stationId, String stationName) {
         Bundle bundle = new Bundle();
@@ -118,8 +116,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
         ((KioskModeActivity)getActivity()).getToolbarTextViewTitle().setText(title);
         ((KioskModeActivity)getActivity()).getToolbarTextViewUsernameRight().setText("");
         check();
-
-        mDeviceBandwidthSampler = DeviceBandwidthSampler.getInstance();
+        speedTestSocket = new SpeedTestSocket();
+        addSpeedTestListener();
     }
 
     @Override
@@ -323,7 +321,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             @Override
             public void run() {
                 setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
-                networkStatusHandler.postDelayed(this, 60000);
+                networkStatusHandler.postDelayed(this, 30000);
             }
         }, 1000);
     }
@@ -335,46 +333,6 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             return wifiInfo.getLinkSpeed(); //measured using WifiInfo.LINK_SPEED_UNITS
         }
         return -1;
-    }
-
-    private void startSampling() {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://upload.wikimedia.org/wikipedia/commons/f/ff/Pizigani_1367_Chart_10MB.jpg")
-                .build();
-
-        mDeviceBandwidthSampler.startSampling();
-        client.newCall(request).enqueue(new okhttp3.Callback() {
-            @Override
-            public void onFailure(okhttp3.Call call, IOException e) {
-                mDeviceBandwidthSampler.stopSampling();
-            }
-
-            @Override
-            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
-                mDeviceBandwidthSampler.stopSampling();
-                ConnectionQuality connectionQuality = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-
-                //Bandwidth under 150 kbps (1.2 Mbps).
-                if (connectionQuality == ConnectionQuality.POOR) {
-                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
-                }
-                //Bandwidth between 150 and 550 kbps (4.4 Mbps)
-                else if (connectionQuality == ConnectionQuality.MODERATE) {
-                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
-                }
-                //Bandwidth between 550 and 2000 kbps (16 Mbps)
-                else if (connectionQuality == ConnectionQuality.GOOD) {
-                    mBinding.setNetworkState("LOW INTERNET CONNECTION");
-                }
-                //Bandwidth over 2000 kbps (>16 Mbps)
-                else if (connectionQuality == ConnectionQuality.EXCELLENT) {
-                    mBinding.setNetworkState(null);
-                } else {
-                    mBinding.setNetworkState(null);
-                }
-            }
-        });
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -391,11 +349,75 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             mBinding.setNetworkState("NO INTERNET CONNECTION");
 
             return;
-        }  else {
-            mBinding.setNetworkState(null);
         }
 
-        //startSampling();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                speedTestSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso");
+            }
+        });
+
+        thread.start();
     }
 
+    private void addSpeedTestListener() {
+        speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
+
+            @Override
+            public void onCompletion(final SpeedTestReport report) {
+                // called when download/upload is complete
+                System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
+                System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
+
+                displayNetworkQuality(convertBitPerSecondToMegabitPerSecond(report.getTransferRateBit().doubleValue()));
+            }
+
+            @Override
+            public void onError(final SpeedTestError speedTestError, final String errorMessage) {
+                // called when a download/upload error occur
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "onError speed test " + speedTestError.toString() + errorMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onProgress(float percent, SpeedTestReport report) {
+                // called to notify download/upload progress
+                System.out.println("[PROGRESS] progress : " + percent + "%");
+                System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
+                System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
+            }
+        });
+    }
+
+    private double convertBitPerSecondToMegabitPerSecond(double bitPerSecond) {
+        return bitPerSecond * 0.000001;
+    }
+
+    private void displayNetworkQuality(double downloadRateInMegabitPerSecond) {
+        final DecimalFormat df = new DecimalFormat("#.#");
+
+        final String formattedRate = df.format(downloadRateInMegabitPerSecond);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(), "[COMPLETED] rate in Megabit/s   : " + formattedRate, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        if (downloadRateInMegabitPerSecond < 2) {
+            mBinding.setNetworkState("LOW INTERNET CONNECTION");
+        } else if (downloadRateInMegabitPerSecond < 5) {
+            mBinding.setNetworkState("LOW INTERNET CONNECTION");
+        } else if (downloadRateInMegabitPerSecond < 10) {
+            mBinding.setNetworkState("LOW INTERNET CONNECTION");
+        } else {
+            mBinding.setNetworkState(null);
+        }
+    }
 }
