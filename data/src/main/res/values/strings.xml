@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Data</string>
+
+    <!-- Network -->
+    <string name="base_url">http://%1$s.epoptia.com/mobile/</string>
+
+</resources>

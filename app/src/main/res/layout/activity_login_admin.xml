@@ -6,12 +6,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="isdomainValid"
-            type="boolean" />
-
-        <variable
-            name="processing"
-            type="boolean" />
+            name="loginViewModel"
+            type="kioskmode.com.epoptia.login.model.LoginViewModel" />
 
     </data>
 
@@ -31,7 +27,7 @@
             android:contentDescription="@string/image_desc" />
 
         <TextView
-            android:id="@+id/deviceIsTabletTtv"
+            android:id="@+id/deviceCategoryTtv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp" />
@@ -41,12 +37,13 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/subdomainEdt"
+                android:id="@+id/subDomainEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/subdomain_hint"
+                android:text="@={loginViewModel.subDomain}"
                 android:textSize="13sp"
-                android:enabled="@{!isdomainValid}"
+                android:enabled="@{!loginViewModel.subDomainIsValid}"
                 android:inputType="text" />
 
         </android.support.design.widget.TextInputLayout>
@@ -57,34 +54,36 @@
             android:text="xxxxx.epoptia.com" />
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/admnusernameTxtInputLyt"
+            android:id="@+id/usernameTxtInputLyt"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:visibility="@{isdomainValid ? View.VISIBLE : View.GONE}">
+            android:visibility="@{loginViewModel.subDomainIsValid ? View.VISIBLE : View.GONE}">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/admnusernameEdt"
+                android:id="@+id/usernameEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/admnusername_hint"
+                android:text="@={loginViewModel.username}"
                 android:textSize="13sp"
                 android:inputType="text" />
 
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/admnpasswordTxtInputLyt"
+            android:id="@+id/passwordTxtInputLyt"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:visibility="@{isdomainValid ? View.VISIBLE : View.GONE}">
+            android:visibility="@{loginViewModel.subDomainIsValid ? View.VISIBLE : View.GONE}">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/admnpasswordEdt"
+                android:id="@+id/passwordEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/admnpassword_hint"
+                android:text="@={loginViewModel.password}"
                 android:textSize="13sp"
                 android:inputType="text" />
 
@@ -102,7 +101,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="5dp"
-            android:visibility="@{processing ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{loginViewModel.processing ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
 

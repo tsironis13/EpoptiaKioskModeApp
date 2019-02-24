@@ -6,6 +6,9 @@
     <string name="welcome">Καλωσήρθατε!</string>
     <string name="image_desc">image_desc</string>
 
+    <!-- Fragment Tags -->
+    <string name="login_activity_retain_fragment">login_activity_retain_fragment</string>
+
     <!-- Shared Prefs -->
     <string name="domain_authenticated">domain_authenticated</string>
     <string name="device_locked">device_locked</string>

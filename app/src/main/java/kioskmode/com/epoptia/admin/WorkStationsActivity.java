@@ -31,8 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-import java.io.IOException;
-import java.text.DecimalFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,8 @@ import fr.bmartel.speedtest.SpeedTestReport;
 import fr.bmartel.speedtest.SpeedTestSocket;
 import fr.bmartel.speedtest.inter.ISpeedTestListener;
 import fr.bmartel.speedtest.model.SpeedTestError;
-import kioskmode.com.epoptia.BaseActivity;
+import kioskmode.com.epoptia.base.BaseActivity;
+import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.pojo.GetWorkStationsRequest;
 import kioskmode.com.epoptia.pojo.GetWorkStationsResponse;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
@@ -51,8 +51,6 @@ import kioskmode.com.epoptia.databinding.ActivityWorkStationsBinding;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -126,6 +124,11 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(getResources().getString(R.string.workstation_id), stationId);
+    }
+
+    @Override
+    public Lifecycle.ViewModel getViewModel() {
+        return null;
     }
 
     private void check() {
@@ -256,7 +259,7 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
             case OVERLAY_PERMISSION_REQ_CODE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (!Settings.canDrawOverlays(this)) {
-                        Toast.makeText(this, "User cannot access system settings without this permission!App cannot be locked", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "DomainClientModel cannot access system settings without this permission!App cannot be locked", Toast.LENGTH_SHORT).show();
                     } else {
                         checkAppIsDefaultLauncher();
                     }
@@ -376,12 +379,12 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
             @Override
             public void run() {
                 setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
-                networkStatusHandler.postDelayed(this, 30000);
+                networkStatusHandler.postDelayed(this, 60000);
             }
         }, 1000);
     }
 
-    private int getNetworkSpeed() {
+    private int getNetworkLinkSpeed() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager != null ? wifiManager.getConnectionInfo() : null;
         if (wifiInfo != null) {
@@ -422,8 +425,8 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
             @Override
             public void onCompletion(final SpeedTestReport report) {
                 // called when download/upload is complete
-                System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
-                System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
+                //System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
 
                 displayNetworkQuality(convertBitPerSecondToMegabitPerSecond(report.getTransferRateBit().doubleValue()));
             }
@@ -431,20 +434,14 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
             @Override
             public void onError(final SpeedTestError speedTestError, final String errorMessage) {
                 // called when a download/upload error occur
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "onError speed test " + speedTestError.toString() + errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
             }
 
             @Override
             public void onProgress(float percent, SpeedTestReport report) {
                 // called to notify download/upload progress
-                System.out.println("[PROGRESS] progress : " + percent + "%");
-                System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
-                System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
+                //System.out.println("[PROGRESS] progress : " + percent + "%");
+                //System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
             }
         });
     }
@@ -454,23 +451,12 @@ public class WorkStationsActivity extends BaseActivity implements WordStationsCo
     }
 
     private void displayNetworkQuality(double downloadRateInMegabitPerSecond) {
-        final DecimalFormat df = new DecimalFormat("#.#");
-
-        final String formattedRate = df.format(downloadRateInMegabitPerSecond);
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "[COMPLETED] rate in Megabit/s   : " + formattedRate, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        if (downloadRateInMegabitPerSecond < 2) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
-        } else if (downloadRateInMegabitPerSecond < 5) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
-        } else if (downloadRateInMegabitPerSecond < 10) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
+        if (getNetworkLinkSpeed() <= 15 && downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan) \n Low Internet Connection <15 Mbps");
+        } else if (downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low Internet Connection <15 Mbps");
+        } else if (getNetworkLinkSpeed() <= 15) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan)");
         } else {
             mBinding.setNetworkState(null);
         }

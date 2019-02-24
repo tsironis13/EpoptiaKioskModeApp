@@ -25,11 +25,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import kioskmode.com.epoptia.BaseActivity;
+import kioskmode.com.epoptia.splashscreen.SplashScreenActivity;
+import kioskmode.com.epoptia.base.BaseActivity;
+import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.pojo.UnlockDeviceRequest;
 import kioskmode.com.epoptia.pojo.UnlockDeviceResponse;
 import kioskmode.com.epoptia.R;
-import kioskmode.com.epoptia.SplashScreen;
 import kioskmode.com.epoptia.app.utils.KioskService;
 import kioskmode.com.epoptia.databinding.ActivityKioskModeBinding;
 import kioskmode.com.epoptia.kioskmodetablet.stationworkers.StationWorkersFrgmt;
@@ -142,7 +143,7 @@ public class KioskModeActivity extends BaseActivity {
                     if (count==5) {
                         SharedPrefsUtl.removeStringkey(KioskModeActivity.this, "cookie");
                         SharedPrefsUtl.setBooleanPref(KioskModeActivity.this, getResources().getString(R.string.device_locked), false);
-                        Intent intent = new Intent(KioskModeActivity.this, SplashScreen.class);
+                        Intent intent = new Intent(KioskModeActivity.this, SplashScreenActivity.class);
                         intent.putExtra(getResources().getString(R.string.action_type), 1020);
                         startActivity(intent);
                         finish();
@@ -199,6 +200,11 @@ public class KioskModeActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+    }
+
+    @Override
+    public Lifecycle.ViewModel getViewModel() {
+        return null;
     }
 
     @Override
@@ -270,7 +276,7 @@ public class KioskModeActivity extends BaseActivity {
                             if (response.body().getCode() == 200) {
                                 SharedPrefsUtl.removeStringkey(KioskModeActivity.this, "cookie");
                                 SharedPrefsUtl.setBooleanPref(KioskModeActivity.this, getResources().getString(R.string.device_locked), false);
-                                Intent intent = new Intent(KioskModeActivity.this, SplashScreen.class);
+                                Intent intent = new Intent(KioskModeActivity.this, SplashScreenActivity.class);
                                 intent.putExtra(getResources().getString(R.string.action_type), 1020);
                                 startActivity(intent);
                                 finish();

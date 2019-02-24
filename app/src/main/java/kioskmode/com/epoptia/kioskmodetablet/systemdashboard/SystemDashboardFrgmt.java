@@ -1,15 +1,19 @@
 package kioskmode.com.epoptia.kioskmodetablet.systemdashboard;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +21,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,6 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import fr.bmartel.speedtest.SpeedTestReport;
+import fr.bmartel.speedtest.SpeedTestSocket;
+import fr.bmartel.speedtest.inter.ISpeedTestListener;
+import fr.bmartel.speedtest.model.SpeedTestError;
 import kioskmode.com.epoptia.pojo.LogoutWorkerRequest;
 import kioskmode.com.epoptia.pojo.UploadImageResponse;
 import kioskmode.com.epoptia.pojo.ValidateAdminResponse;
@@ -56,6 +65,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+import static android.webkit.WebView.HitTestResult.EDIT_TEXT_TYPE;
 
 /**
  * Created by giannis on 5/9/2017.
@@ -75,6 +85,8 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
     private Uri photoURI;
     private int ordertrackID, delay;
     private boolean imageUploading, uploadImage, webviewIsDisabled;//uploadImage is used to check if image has to be uploaded to activities destroyed
+    private SpeedTestSocket speedTestSocket;
+    private Handler networkStatusHandler;
 
     public static SystemDashboardFrgmt newInstance(int stationId, String cookie, String url, String stationName, String workerUsername, int workerId, String action) {
         Bundle bundle = new Bundle();
@@ -149,6 +161,8 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
         if (getActivity() != null && isAdded()) {
             initializeView();
         }
+        speedTestSocket = new SpeedTestSocket();
+        addSpeedTestListener();
     }
 
     @Override
@@ -159,6 +173,20 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                 uploadImage(output);
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkNetworkStateEveryMinute();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, new IntentFilter("networkState"));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //destroyWebView();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, new IntentFilter("networkState"));
     }
 
     @Override
@@ -288,10 +316,32 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
                                     public void run() {
                                         hideKeyboard();
                                     }
-                                }, 500);
+                                }, 350);
                             }
                         }, "barcode");
                         mBinding.webView.setWebViewClient(new WebViewClient());
+                        mBinding.webView.setVerticalScrollBarEnabled(true);
+                        mBinding.webView.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View view, MotionEvent motionEvent) {
+                                WebView.HitTestResult hr = ((WebView)view).getHitTestResult();
+
+                                if (hr.getType() == EDIT_TEXT_TYPE) {
+                                    new Handler().postDelayed(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            hideKeyboard();
+
+                                        }
+                                    }, 200);
+                                }
+
+                                Log.i("Webview click", "getExtra = "+ hr.getExtra() + "\t\t Type=" + hr.getType());
+
+                                return false;
+                            }
+                        });
                         mBinding.webView.loadUrl(url);
                     } else {
                         mBinding.setHaserror(true);
@@ -430,7 +480,117 @@ public class SystemDashboardFrgmt extends Fragment implements WebView.OnTouchLis
         }
     }
 
+    private void destroyWebView() {
+        mBinding.webView.clearHistory();
+
+        // NOTE: clears RAM cache, if you pass true, it will also clear the disk cache.
+        // Probably not a great idea to pass true if you have other WebViews still alive.
+        mBinding.webView.clearCache(true);
+
+        mBinding.webView.onPause();
+        mBinding.webView.removeAllViews();
+        mBinding.webView.destroyDrawingCache();
+
+        // NOTE: This pauses JavaScript execution for ALL WebViews,
+        // do not use if you have other WebViews still alive.
+        // If you create another WebView after calling this,
+        // make sure to call mWebView.resumeTimers().
+        mBinding.webView.pauseTimers();
+
+        // NOTE: This can occasionally cause a segfault below API 17 (4.2)
+        mBinding.webView.destroy();
+    }
+
     private String constructFullUrl(String url) {
         return "http://"+subdomain+".epoptia.com/"+url;
+    }
+
+    private void checkNetworkStateEveryMinute() {
+        networkStatusHandler = new Handler();
+        networkStatusHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
+                networkStatusHandler.postDelayed(this, 60000);
+            }
+        }, 1000);
+    }
+
+    private int getNetworkLinkSpeed() {
+        WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager != null ? wifiManager.getConnectionInfo() : null;
+        if (wifiInfo != null) {
+            return wifiInfo.getLinkSpeed(); //measured using WifiInfo.LINK_SPEED_UNITS
+        }
+        return -1;
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            boolean networkStatus = intent.getBooleanExtra("networkState", false);
+            setNetworkStatusAndShowNetworkRelatedSnackbar(networkStatus);
+        }
+    };
+
+    private void setNetworkStatusAndShowNetworkRelatedSnackbar(boolean networkState) {
+        if (!networkState) {
+            mBinding.setNetworkState("NO INTERNET CONNECTION");
+
+            return;
+        }
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                speedTestSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso");
+            }
+        });
+
+        thread.start();
+    }
+
+    private void addSpeedTestListener() {
+        speedTestSocket.addSpeedTestListener(new ISpeedTestListener() {
+
+            @Override
+            public void onCompletion(final SpeedTestReport report) {
+                // called when download/upload is complete
+                //System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
+
+                displayNetworkQuality(convertBitPerSecondToMegabitPerSecond(report.getTransferRateBit().doubleValue()));
+            }
+
+            @Override
+            public void onError(final SpeedTestError speedTestError, final String errorMessage) {
+                // called when a download/upload error occur
+            }
+
+            @Override
+            public void onProgress(float percent, SpeedTestReport report) {
+                // called to notify download/upload progress
+                //System.out.println("[PROGRESS] progress : " + percent + "%");
+                //System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
+            }
+        });
+    }
+
+    private double convertBitPerSecondToMegabitPerSecond(double bitPerSecond) {
+        return bitPerSecond * 0.000001;
+    }
+
+    private void displayNetworkQuality(double downloadRateInMegabitPerSecond) {
+        if (getNetworkLinkSpeed() <= 15 && downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan) \n Low Internet Connection <15 Mbps");
+        } else if (downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low Internet Connection <15 Mbps");
+        } else if (getNetworkLinkSpeed() <= 15) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan)");
+        } else {
+            mBinding.setNetworkState(null);
+        }
     }
 }

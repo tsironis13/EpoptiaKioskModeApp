@@ -2,6 +2,15 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="errorOccurred"
+            type="boolean" />
+
+    </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -13,6 +22,13 @@
             android:layout_height="wrap_content"
             android:text="@string/welcome"
             android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/retryBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ΞΑΝΑΠΡΟΣΠΑΘΗΣΕ"
+            android:visibility="@{errorOccurred ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
 

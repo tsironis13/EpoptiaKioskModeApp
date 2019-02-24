@@ -22,15 +22,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +47,6 @@ import kioskmode.com.epoptia.kioskmodetablet.systemdashboard.SystemDashboardFrgm
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -99,6 +93,7 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt(getResources().getString(R.string.workstation_id));
             stationName = savedInstanceState.getString("station_name");
@@ -331,12 +326,12 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             @Override
             public void run() {
                 setNetworkStatusAndShowNetworkRelatedSnackbar(isNetworkAvailable());
-                networkStatusHandler.postDelayed(this, 30000);
+                networkStatusHandler.postDelayed(this, 60000);
             }
         }, 1000);
     }
 
-    private int getNetworkSpeed() {
+    private int getNetworkLinkSpeed() {
         WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager != null ? wifiManager.getConnectionInfo() : null;
         if (wifiInfo != null) {
@@ -359,8 +354,6 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             mBinding.setNetworkState("NO INTERNET CONNECTION");
 
             return;
-        } else {
-            mBinding.setNetworkState(null);
         }
 
         Thread thread = new Thread(new Runnable() {
@@ -379,8 +372,8 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             @Override
             public void onCompletion(final SpeedTestReport report) {
                 // called when download/upload is complete
-                System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
-                System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
+                //System.out.println("[COMPLETED] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[COMPLETED] rate in bit/s   : " + report.getTransferRateBit());
 
                 displayNetworkQuality(convertBitPerSecondToMegabitPerSecond(report.getTransferRateBit().doubleValue()));
             }
@@ -388,20 +381,14 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
             @Override
             public void onError(final SpeedTestError speedTestError, final String errorMessage) {
                 // called when a download/upload error occur
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity(), "onError speed test " + speedTestError.toString() + errorMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
             }
 
             @Override
             public void onProgress(float percent, SpeedTestReport report) {
                 // called to notify download/upload progress
-                System.out.println("[PROGRESS] progress : " + percent + "%");
-                System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
-                System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
+                //System.out.println("[PROGRESS] progress : " + percent + "%");
+                //System.out.println("[PROGRESS] rate in octet/s : " + report.getTransferRateOctet());
+                //System.out.println("[PROGRESS] rate in bit/s   : " + report.getTransferRateBit());
             }
         });
     }
@@ -411,23 +398,12 @@ public class StationWorkersFrgmt extends Fragment implements StationWorkersContr
     }
 
     private void displayNetworkQuality(double downloadRateInMegabitPerSecond) {
-        final DecimalFormat df = new DecimalFormat("#.#");
-
-        final String formattedRate = df.format(downloadRateInMegabitPerSecond);
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(), "[COMPLETED] rate in Megabit/s   : " + formattedRate, Toast.LENGTH_LONG).show();
-            }
-        });
-
-        if (downloadRateInMegabitPerSecond < 2) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
-        } else if (downloadRateInMegabitPerSecond < 5) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
-        } else if (downloadRateInMegabitPerSecond < 10) {
-            mBinding.setNetworkState("LOW INTERNET CONNECTION");
+        if (getNetworkLinkSpeed() <= 15 && downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan) \n Low Internet Connection <15 Mbps");
+        } else if (downloadRateInMegabitPerSecond <= 0.5) {
+            mBinding.setNetworkState("Low Internet Connection <15 Mbps");
+        } else if (getNetworkLinkSpeed() <= 15) {
+            mBinding.setNetworkState("Low NetworkUtility Connection <100Mbps (Please check out Wifi and Lan)");
         } else {
             mBinding.setNetworkState(null);
         }

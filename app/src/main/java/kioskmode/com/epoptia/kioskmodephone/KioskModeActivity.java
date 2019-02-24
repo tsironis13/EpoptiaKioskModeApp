@@ -14,13 +14,14 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import kioskmode.com.epoptia.BaseActivity;
+import kioskmode.com.epoptia.base.BaseActivity;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.admin.WorkStationsActivity;
 import kioskmode.com.epoptia.app.utils.KioskService;
 import kioskmode.com.epoptia.databinding.ActivityKioskModeBinding;
 import kioskmode.com.epoptia.kioskmodephone.stationworkers.StationWorkersFrgmt;
 import kioskmode.com.epoptia.kioskmodephone.systemdashboard.SystemDashboardFrgmt;
+import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.retrofit.APIClient;
 import kioskmode.com.epoptia.retrofit.APIInterface;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
@@ -126,6 +127,11 @@ public class KioskModeActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         dismissDialog();
+    }
+
+    @Override
+    public Lifecycle.ViewModel getViewModel() {
+        return null;
     }
 
     @Override
