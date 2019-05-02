@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import fr.bmartel.speedtest.SpeedTestSocket;
 import kioskmode.com.epoptia.app.MyApplication;
 import kioskmode.com.epoptia.di.module.repository.localstorage.RepositoryModule;
 import kioskmode.com.epoptia.di.module.utility.DeviceModule;

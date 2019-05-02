@@ -6,7 +6,7 @@ import io.reactivex.Single;
 
 public interface UserRepository {
 
-    Completable saveAccessToken(DomainUserModel user);
+    Completable setAccessToken(DomainUserModel user);
 
     Single<DomainUserModel> getUser();
 

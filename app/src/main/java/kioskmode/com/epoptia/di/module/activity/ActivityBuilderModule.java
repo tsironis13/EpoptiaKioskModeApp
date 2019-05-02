@@ -3,13 +3,15 @@ package kioskmode.com.epoptia.di.module.activity;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
+import kioskmode.com.epoptia.kioskmode.KioskModeActivityModule;
 import kioskmode.com.epoptia.splashscreen.SplashScreenActivity;
-import kioskmode.com.epoptia.admin.WorkStationsActivity;
+import kioskmode.com.epoptia.workstations.WorkStationsActivity;
 import kioskmode.com.epoptia.di.scope.ActivityScope;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
 import kioskmode.com.epoptia.login.LoginActivity;
 import kioskmode.com.epoptia.login.LoginActivityModule;
 import kioskmode.com.epoptia.splashscreen.SplashScreenActivityModule;
+import kioskmode.com.epoptia.workstations.WorkStationsActivityModule;
 
 /**
  * AndroidSupportInjectionModule is a dagger @Module,
@@ -47,8 +49,17 @@ public abstract class ActivityBuilderModule {
      * @return
      */
     @ActivityScope
-    @ContributesAndroidInjector()
+    @ContributesAndroidInjector(modules = WorkStationsActivityModule.class)
     abstract WorkStationsActivity contributesWorkStationsActivityInjector();
+
+    /**
+     * Put KioskModeActivity into injector map.
+     *
+     * @return
+     */
+    @ActivityScope
+    @ContributesAndroidInjector(modules = KioskModeActivityModule.class)
+    abstract kioskmode.com.epoptia.kioskmode.KioskModeActivity contributesKioskModeActivityInjector();
 
     /**
      * Put KioskModeActivity tablet into injector map.

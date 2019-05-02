@@ -11,6 +11,10 @@ public class BaseResponseDto {
     @Expose
     private int code;
 
+    @SerializedName("description")
+    @Expose
+    private String description;
+
     //endregion
 
     //region Constructor
@@ -25,12 +29,20 @@ public class BaseResponseDto {
         this.code = code;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     //endregion
 
     //region Getters
 
     public int getCode() {
         return code;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     //endregion

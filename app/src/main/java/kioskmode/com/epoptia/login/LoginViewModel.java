@@ -1,44 +1,34 @@
 package kioskmode.com.epoptia.login;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.util.Log;
 
 import javax.inject.Inject;
 
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.interactor.client.GetClientFromLocalStorageUseCase;
 import domain.com.epoptia.interactor.client.ValidateClientSubDomainUseCase;
-import domain.com.epoptia.interactor.device.CheckDeviceCategoryUseCase;
 import domain.com.epoptia.interactor.user.LoginAdminUseCase;
-import domain.com.epoptia.interactor.user.SaveAccessTokenToLocalStorageUseCase;
-import domain.com.epoptia.interfaces.DeviceCategory;
 import domain.com.epoptia.model.dto.post.LoginAdminPostDto;
 import domain.com.epoptia.model.dto.post.ValidateClientSubDomainPostDto;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.CompletableSubject;
-import io.reactivex.subjects.SingleSubject;
-import io.reactivex.subjects.Subject;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
-import kioskmode.com.epoptia.mappers.LoginViewModelToUserDomainModelMapper;
-import kioskmode.com.epoptia.viewmodel.ContextStr;
+import kioskmode.com.epoptia.viewmodel.ObserverContextStrategy;
 import kioskmode.com.epoptia.viewmodel.ViewModelObserverCreator;
-import kioskmode.com.epoptia.viewmodel.creators.LoginAdminViewModelObserverCreator;
-import kioskmode.com.epoptia.viewmodel.creators.ValidateClientSubDomainViewModelObserverCreator;
-import kioskmode.com.epoptia.viewmodel.strategy.CompletableStrategy;
+import kioskmode.com.epoptia.viewmodel.observercreators.LoginAdminViewModelObserverCreator;
+import kioskmode.com.epoptia.viewmodel.observercreators.ValidateClientSubDomainViewModelObserverCreator;
+import kioskmode.com.epoptia.viewmodel.observerstrategy.CompletableObserverStrategy;
 
-public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
+public class LoginViewModel implements LoginContract.ViewModel {
 
     //region Injections
 
     @Inject
     ValidateClientSubDomainUseCase validateClientSubDomainUseCase;
-
-    @Inject
-    SaveAccessTokenToLocalStorageUseCase saveAccessTokenToLocalStorageUseCase;
-
-    @Inject
-    CheckDeviceCategoryUseCase checkDeviceCategoryUseCase;
 
     @Inject
     GetClientFromLocalStorageUseCase getClientFromLocalStorageUseCase;
@@ -53,13 +43,10 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
     LoginAdminPostDto loginAdminPostDto;
 
     @Inject
-    LoginViewModelToUserDomainModelMapper loginViewModelToUserDomainModelMapper;
+    kioskmode.com.epoptia.viewmodel.models.LoginViewModel loginViewModel;
 
     @Inject
-    kioskmode.com.epoptia.login.model.LoginViewModel loginViewModel;
-
-    @Inject
-    ContextStr contextStr;
+    ObserverContextStrategy observerContextStrategy;
 
     //endregion
 
@@ -69,18 +56,16 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
 
     private Disposable mObserverDisposable;
 
-    private CompletableSubject mProcessor;
+    private CompletableSubject mCompletableProcessor;
 
     private LoginContract.View mViewCallback;
 
     private ViewModelObserverCreator mViewModelObserverCreator;
 
-    //todo add constants
     //10 -> running
     //0 -> none
     private int requestState;
 
-    //todo add constants
     private int subjectType;
 
     //endregion
@@ -88,36 +73,36 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
     //region Constructor
 
     @Inject
-    public LoginViewModel() { }
+    public LoginViewModel() {}
 
     //endregion
 
     //region Public Methods
 
     @Override
-    public void onViewAttached(Lifecycle.View viewCallback) {
+    public void onViewAttached(Bundle savedInstanceState, Lifecycle.View viewCallback) {
         mViewCallback = (LoginContract.View) viewCallback;
 
-        checkDeviceCategory();
-
-        initializeFormData();
+        if (savedInstanceState == null) {
+            initializeFormData();
+        }
     }
 
     @Override
     public void onViewResumed() {
         //Log.e(debugTag, "VIEW RESULMED => " + requestState);
-        if (requestState == 10) {
+        if (requestState == Constants.REQUEST_RUNNING) {
             Log.e(debugTag, "onViewResumed => request pending");
 
             Log.e(debugTag, mViewModelObserverCreator.getViewModelCompletableObserver() + " ON VIEW RESUMED OBSERVER");
 
             mViewCallback.setProcessing(true);
             //todo complete for all subject types
-            if (subjectType == 1) {
-                contextStr.setStrategy(new CompletableStrategy(mProcessor, mViewModelObserverCreator));
+            if (subjectType == Constants.COMPLETABLE_SUBJECT) {
+                observerContextStrategy.setStrategy(new CompletableObserverStrategy(mCompletableProcessor, mViewModelObserverCreator));
             }
 
-            mObserverDisposable = contextStr.executeStrategy();
+            mObserverDisposable = observerContextStrategy.executeStrategy();
         }
     }
 
@@ -146,21 +131,15 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
                     return;
                 }
 
-                mViewCallback.initializeSubDomain(loginViewModel);
+                mViewCallback.bindLoginViewModelToViewModel(loginViewModel);
             }
         }, (error) -> {
             //todo add error handling
-            int x = 10;
         });
     }
 
     @Override
-    public void checkDeviceCategory() {
-        checkDeviceCategoryUseCase.execute(this);
-    }
-
-    @Override
-    public void submitForm(kioskmode.com.epoptia.login.model.LoginViewModel loginViewModel) {
+    public void submitForm(kioskmode.com.epoptia.viewmodel.models.LoginViewModel loginViewModel) {
         if (loginViewModel == null) {
             return;
         }
@@ -174,105 +153,70 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
 
     @SuppressLint("CheckResult")
     @Override
-    public void loginAdmin(kioskmode.com.epoptia.login.model.LoginViewModel loginViewModel) {
+    public void loginAdmin(kioskmode.com.epoptia.viewmodel.models.LoginViewModel loginViewModel) {
         if (loginViewModel == null) {
             return;
         }
 
-        //todo add constant
-        //single
-        subjectType = 1;
+        subjectType = Constants.COMPLETABLE_SUBJECT;
 
-        requestState = 10;
+        requestState = Constants.REQUEST_RUNNING;
 
         loginAdminPostDto.setClientSubDomain(loginViewModel.getSubDomain());
         loginAdminPostDto.setUsername(loginViewModel.getUsername());
         loginAdminPostDto.setPassword(loginViewModel.getPassword());
-        loginAdminPostDto.setAction("validate_admin");
+        loginAdminPostDto.setAction(Constants.ACTION_VALIDATE_ADMIN);
 
-        mProcessor = CompletableSubject.create();
+        mCompletableProcessor = CompletableSubject.create();
 
         mViewModelObserverCreator = new LoginAdminViewModelObserverCreator(this);
 
         Log.e(debugTag, mViewModelObserverCreator.getViewModelCompletableObserver() + " ON SUBMIT");
 
-        mObserverDisposable = mProcessor
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
+        mObserverDisposable = mCompletableProcessor
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
 
         loginAdminUseCase
                     .execute(loginAdminPostDto)
                     .doOnSubscribe(subscription -> mViewCallback.setProcessing(true))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(mProcessor);
+                    .subscribeWith(mCompletableProcessor);
     }
 
+    @SuppressLint("CheckResult")
     @Override
-    public void validateClientSubDomain(kioskmode.com.epoptia.login.model.LoginViewModel loginViewModel) {
+    public void validateClientSubDomain(kioskmode.com.epoptia.viewmodel.models.LoginViewModel loginViewModel) {
         if (loginViewModel == null) {
             return;
         }
 
-        //todo add constant
-        //completable
-        subjectType = 1;
+        subjectType = Constants.COMPLETABLE_SUBJECT;
 
-        //todo add constant
-        requestState = 10;
+        requestState = Constants.REQUEST_RUNNING;
 
         validateClientSubDomainDto.setClientSubDomain(loginViewModel.getSubDomain());
-        validateClientSubDomainDto.setAction("validate_customer_domain");
+        validateClientSubDomainDto.setAction(Constants.ACTION_VALIDATE_CUSTOMER_DOMAIN);
 
-        mProcessor = CompletableSubject.create();
+        mCompletableProcessor = CompletableSubject.create();
 
         mViewModelObserverCreator = new ValidateClientSubDomainViewModelObserverCreator(this);
 
         Log.e(debugTag, mViewModelObserverCreator.getViewModelCompletableObserver() + " ON SUBMIT");
 
-        mObserverDisposable = mProcessor
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
+        mObserverDisposable = mCompletableProcessor
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
 
         validateClientSubDomainUseCase
                                 .execute(validateClientSubDomainDto)
                                 .doOnSubscribe(subscription -> mViewCallback.setProcessing(true))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeWith(mProcessor);
-    }
-
-//    @Override
-//    public void saveAccessToken(kioskmode.com.epoptia.login.viewmodel.LoginViewModel loginViewModel) {
-//        if (loginViewModel == null) {
-//            return;
-//        }
-//
-//        saveAccessTokenToLocalStorageUseCase
-//                                        .execute(loginViewModelToUserDomainModelMapper.map(loginViewModel))
-//                                        .subscribeOn(Schedulers.io())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribe();
-//    }
-
-    @Override
-    public void deviceIsTablet() {
-        if (mViewCallback == null) {
-            return;
-        }
-
-        mViewCallback.deviceIsTablet();
-    }
-
-    @Override
-    public void deviceIsPhone() {
-        if (mViewCallback == null) {
-            return;
-        }
-
-        mViewCallback.deviceIsPhone();
+                                .subscribeWith(mCompletableProcessor);
     }
 
     @Override
@@ -314,7 +258,7 @@ public class LoginViewModel implements LoginContract.ViewModel, DeviceCategory {
 
         mViewCallback.setProcessing(false);
 
-        requestState = 0;
+        requestState = Constants.REQUEST_NONE;
     }
 
     //endregion

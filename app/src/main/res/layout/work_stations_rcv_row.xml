@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data>
 
         <variable
             name="obj"
-            type="kioskmode.com.epoptia.pojo.WorkStation" />
+            type="domain.com.epoptia.model.domain.DomainWorkStationModel" />
 
         <variable
-            name="presenter"
-            type="kioskmode.com.epoptia.admin.WorkStationsPresenter" />
+            name="clickListener"
+            type="kioskmode.com.epoptia.workstations.WorkStationsClickListenerContract" />
 
     </data>
 
@@ -19,17 +19,12 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:padding="7dp"
-        android:onClick="@{() -> presenter.onBaseViewClick(baseLlt)}">
+        android:onClick="@{() -> clickListener.onItemClick(baseLlt)}">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{obj.name}" />
-
-        <!--<CheckBox-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentRight="true" />-->
 
     </RelativeLayout>
 

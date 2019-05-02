@@ -10,7 +10,7 @@ public class ClientPreferenceModelToClientDomainModelMapper {
     //region Injections
 
     @Inject
-    DomainClientModel domainClient;
+    DomainClientModel domainClientModel;
 
     //endregion
 
@@ -24,9 +24,9 @@ public class ClientPreferenceModelToClientDomainModelMapper {
     //region Public Methods
 
     public DomainClientModel map(Preference_Client clientPref) {
-        domainClient.setSubDomain(clientPref.getSubDomain());
+        domainClientModel.setSubDomain(clientPref.getSubDomain());
 
-        return domainClient;
+        return domainClientModel;
     }
 
     //endregion

@@ -1,8 +1,8 @@
 package kioskmode.com.epoptia.login;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import javax.inject.Inject;
 
@@ -10,7 +10,7 @@ public class LoginRetainFragment extends Fragment {
 
     //region Private Properties
 
-    private LoginContract.ViewModel loginViewModel;
+    private LoginContract.ViewModel mViewModel;
 
     //endregion
 
@@ -26,6 +26,7 @@ public class LoginRetainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         setRetainInstance(true);
     }
 
@@ -34,11 +35,11 @@ public class LoginRetainFragment extends Fragment {
     //region Public Methods
 
     public void retainViewModel(LoginContract.ViewModel viewModel) {
-        this.loginViewModel = viewModel;
+        this.mViewModel = viewModel;
     }
 
     public LoginContract.ViewModel getViewModel() {
-        return loginViewModel;
+        return mViewModel;
     }
 
     //endregion

@@ -3,7 +3,7 @@ package kioskmode.com.epoptia.splashscreen;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 
 import javax.inject.Inject;
@@ -13,9 +13,10 @@ import kioskmode.com.epoptia.base.BaseActivity;
 import kioskmode.com.epoptia.databinding.SplashScreenBinding;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.login.LoginActivity;
-import kioskmode.com.epoptia.admin.WorkStationsActivity;
+import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
+import kioskmode.com.epoptia.viewmodel.models.KioskModeViewModel;
+import kioskmode.com.epoptia.workstations.WorkStationsActivity;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
-import kioskmode.com.epoptia.utls.SharedPrefsUtl;
 
 public class SplashScreenActivity extends BaseActivity implements SplashScreenContract.View {
 
@@ -23,6 +24,9 @@ public class SplashScreenActivity extends BaseActivity implements SplashScreenCo
 
     @Inject
     SplashScreenContract.ViewModel mViewModel;
+
+    @Inject
+    KioskModeViewModel kioskModeViewModel;
 
     //endregion
 
@@ -43,11 +47,15 @@ public class SplashScreenActivity extends BaseActivity implements SplashScreenCo
         super.onCreate(savedInstanceState);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.splash_screen);
-        mBinding.setErrorOccurred(false);
-
-        mViewModel.saveDeviceCategory();
 
         mBinding.retryBtn.setOnClickListener(view -> mViewModel.saveDeviceCategory());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        super.onStartWithSavedInstanceState(null);
     }
 
     //endregion
@@ -60,6 +68,7 @@ public class SplashScreenActivity extends BaseActivity implements SplashScreenCo
         if (intent != null) {
 //            actionType = intent.getExtras().getInt(getResources().getString(R.string.action_type));
             actionType = intent.getIntExtra(getResources().getString(R.string.action_type), 0);
+
             if (actionType == 1020) { //UNLOCK SCREEN
                 PackageManager p = getPackageManager();
                 ComponentName cN = new ComponentName(getApplicationContext(), KioskModeActivity.class);
@@ -80,7 +89,7 @@ public class SplashScreenActivity extends BaseActivity implements SplashScreenCo
 
     @Override
     public void onSaveDeviceCategorySuccess() {
-        mViewModel.checkUserIsAuthenticated();
+        mViewModel.checkUserAndDeviceState();
 
         //initializeApp();
         intent = getIntent();
@@ -100,23 +109,38 @@ public class SplashScreenActivity extends BaseActivity implements SplashScreenCo
     }
 
     @Override
-    public void navigateUserToLoginScreen() {
-        startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
+    public void navigateUserToLoginScreen(DeviceViewModel deviceViewModel) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(getResources().getString(R.string.device_view_model_parcel), deviceViewModel);
+
+        Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
     }
 
     @Override
-    public void navigateUserToWorkStationsScreen() {
-        startActivity(new Intent(SplashScreenActivity.this, WorkStationsActivity.class));
+    public void navigateUserToWorkStationsScreen(DeviceViewModel deviceViewModel) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(getResources().getString(R.string.device_view_model_parcel), deviceViewModel);
+
+        Intent intent = new Intent(SplashScreenActivity.this, WorkStationsActivity.class);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
     }
 
     @Override
-    public void navigateUserToKioskModeScreen() {
-        //todo change
-        if (getResources().getConfiguration().smallestScreenWidthDp >= 600) {
-            startActivity(new Intent(this, KioskModeActivity.class));
-        } else {
-            startActivity(new Intent(this, kioskmode.com.epoptia.kioskmodephone.KioskModeActivity.class));
-        }
+    public void navigateUserToKioskModeScreen(DeviceViewModel deviceViewModel) {
+        kioskModeViewModel.setDeviceViewModel(deviceViewModel);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(getResources().getString(R.string.kioskmode_view_model_parcel), kioskModeViewModel);
+
+        Intent intent = new Intent(this, kioskmode.com.epoptia.kioskmode.KioskModeActivity.class);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
     }
 
     //endregion

@@ -2,10 +2,14 @@ package kioskmode.com.epoptia.di.module.repository.api;
 
 import dagger.Binds;
 import dagger.Module;
-import data.com.epoptia.network.repository.ClientRepositoryImpl;
-import data.com.epoptia.network.repository.UserRepositoryImpl;
+import data.com.epoptia.api.repository.ClientRepositoryImpl;
+import data.com.epoptia.api.repository.DeviceRepositoryImpl;
+import data.com.epoptia.api.repository.UserRepositoryImpl;
+import data.com.epoptia.api.repository.WorkStationsRepositoryImpl;
 import domain.com.epoptia.repository.api.ClientRepository;
+import domain.com.epoptia.repository.api.DeviceRepository;
 import domain.com.epoptia.repository.api.UserRepository;
+import domain.com.epoptia.repository.api.WorkStationsRepository;
 
 @Module
 public abstract class RepositoryModule {
@@ -23,6 +27,12 @@ public abstract class RepositoryModule {
 
     @Binds
     public abstract UserRepository provideUserApiRepository(UserRepositoryImpl userApiRepositoryImpl);
+
+    @Binds
+    public abstract WorkStationsRepository provideWorkStationsRepository(WorkStationsRepositoryImpl workStationsRepository);
+
+    @Binds
+    public abstract DeviceRepository provideDeviceRepository(DeviceRepositoryImpl deviceRepository);
 
     //endregion
 

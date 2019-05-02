@@ -43,13 +43,10 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
-            android:name=".admin.WorkStationsActivity" />
+            android:name=".workstations.WorkStationsActivity" />
 
         <activity
-            android:name=".kioskmodephone.KioskModeActivity" />
-
-        <activity
-            android:name=".kioskmodetablet.KioskModeActivity"
+            android:name=".kioskmode.KioskModeActivity"
             android:enabled="false"
             android:launchMode="singleTop"
             android:excludeFromRecents="true">
@@ -59,6 +56,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".kioskmodephone.KioskModeActivity" />
+
+        <activity
+            android:name=".kioskmodetablet.KioskModeActivity" />
+            <!--android:enabled="false"-->
+            <!--android:launchMode="singleTop"-->
+            <!--android:excludeFromRecents="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.HOME" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
 
         <receiver android:name=".app.utils.ConnectivityChangeReceiver">
             <intent-filter>
@@ -111,7 +123,7 @@
         </service>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">

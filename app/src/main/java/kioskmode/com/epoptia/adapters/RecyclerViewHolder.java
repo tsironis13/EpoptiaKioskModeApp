@@ -1,10 +1,9 @@
 package kioskmode.com.epoptia.adapters;
 
-import android.databinding.ViewDataBinding;
-import android.support.v7.widget.RecyclerView;
+import androidx.databinding.ViewDataBinding;
+import androidx.databinding.library.baseAdapters.BR;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-
-import com.android.databinding.library.baseAdapters.BR;
 
 import kioskmode.com.epoptia.R;
 
@@ -14,20 +13,38 @@ import kioskmode.com.epoptia.R;
 
 public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
+    //region Private Properties
+
     private ViewDataBinding mBinding;
-//    private RecyclerCallback bindingInterface;
+
+    //private RecyclerCallback bindingInterface;
+
+    //endregion
+
+    //region Constructor
 
     public RecyclerViewHolder(ViewDataBinding viewDataBinding) {
         super(viewDataBinding.getRoot());
+
         this.mBinding = viewDataBinding;
-//        this.bindingInterface = bindingInterface;
+        //this.bindingInterface = bindingInterface;
     }
 
-    public void bind(Object obj, Object object, int position) {
+    //endregion
+
+    //region Public Methods
+
+    public void bind(Object obj, Object clickListener, int position) {
         mBinding.setVariable(BR.obj, obj);
-        mBinding.setVariable(BR.presenter, object);
+        mBinding.setVariable(BR.clickListener, clickListener);
+
         View baseView = mBinding.getRoot().findViewById(R.id.baseLlt);
+
         if (baseView != null) baseView.setTag(position);
+
         mBinding.executePendingBindings();
     }
+
+    //endregion
+
 }

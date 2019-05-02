@@ -37,7 +37,6 @@ public class ValidateClientSubDomainViewModelObserver extends ViewModelCompletab
     @Override
     public void onError(Throwable e) {
         Log.e(debugTag, "ERROR => " + e.toString());
-        Throwable t1 = e;
 
         mViewModel.validateClientSubDomainOnError(e);
     }

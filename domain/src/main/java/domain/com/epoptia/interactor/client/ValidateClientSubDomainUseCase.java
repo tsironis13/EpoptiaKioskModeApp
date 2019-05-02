@@ -1,19 +1,16 @@
 package domain.com.epoptia.interactor.client;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
-import domain.com.epoptia.device.Network;
+import domain.com.epoptia.device.network.NetworkUtility;
 import domain.com.epoptia.interactor.type.CompletableUseCaseWithParameter;
-import domain.com.epoptia.mappers.UserDtoToResponseWrapperDtoMapper;
 import domain.com.epoptia.mappers.ValidateClientSubDomainPostDtoToDomainClientModelMapper;
 import domain.com.epoptia.model.dto.post.ValidateClientSubDomainPostDto;
 import domain.com.epoptia.model.dto.result.ResponseWrapperDto;
 import domain.com.epoptia.model.dto.result.UserDto;
 import domain.com.epoptia.repository.api.ClientRepository;
 import domain.com.epoptia.utilities.error.RetryWithDelay;
-import domain.com.epoptia.utilities.error.ServerSuccessResponseValidator;
+import domain.com.epoptia.utilities.error.ServerSuccessResponseSingleValidatorImpl;
 import domain.com.epoptia.validator.ClientSubDomainPostDtoValidator;
 import io.reactivex.Completable;
 import io.reactivex.SingleSource;
@@ -24,7 +21,7 @@ public class ValidateClientSubDomainUseCase implements CompletableUseCaseWithPar
     //region Injections
 
     @Inject
-    Network network;
+    NetworkUtility networkUtility;
 
     @Inject
     domain.com.epoptia.repository.localstorage.prefs.ClientRepository clientLocalStorageRepository;
@@ -48,10 +45,7 @@ public class ValidateClientSubDomainUseCase implements CompletableUseCaseWithPar
     ValidateClientSubDomainPostDtoToDomainClientModelMapper validateClientSubDomainPostDtoToDomainClientModelMapper;
 
     @Inject
-    UserDtoToResponseWrapperDtoMapper userDtoToResponseWrapperDtoMapper;
-
-    @Inject
-    ServerSuccessResponseValidator serverSuccessResponseValidator;
+    ServerSuccessResponseSingleValidatorImpl serverSuccessResponseSingleValidator;
 
     //endregion
 
@@ -68,11 +62,10 @@ public class ValidateClientSubDomainUseCase implements CompletableUseCaseWithPar
     public Completable execute(ValidateClientSubDomainPostDto validateClientSubDomainDto) {
         return clientSubDomainDtoValidator
                                 .validate(validateClientSubDomainDto)
-                                .flatMap(dto -> network.isNetworkAvailable().toSingleDefault(dto))
-                                .delay(4000, TimeUnit.MILLISECONDS)
+                                .flatMap(dto -> networkUtility.isNetworkAvailable().toSingleDefault(dto))
                                 .flatMap(dto -> clientApiRepository
                                                             .validateClientSubDomain(dto.getClientSubDomain(), validateClientSubDomainDto)
-                                                            .flatMap((Function<UserDto, SingleSource<UserDto>>) userDto -> serverSuccessResponseValidator.validateSingleResponse(userDto))
+                                                            .flatMap((Function<UserDto, SingleSource<UserDto>>) userDto -> serverSuccessResponseSingleValidator.validateResponse(userDto))
                                                             .retryWhen(retryWithDelay))
                                 .map((data) -> validateClientSubDomainPostDtoToDomainClientModelMapper.map(validateClientSubDomainDto))
                                 .flatMapCompletable((data) -> saveClientSubDomainToLocalStorageUseCase.execute(data));

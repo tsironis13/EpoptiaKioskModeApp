@@ -27,7 +27,7 @@ public class SaveAccessTokenToLocalStorageUseCase implements CompletableUseCaseW
 
     @Override
     public Completable execute(DomainUserModel user) {
-        return localStorageUserRepository.saveAccessToken(user);
+        return localStorageUserRepository.setAccessToken(user);
     }
 
     //endregion

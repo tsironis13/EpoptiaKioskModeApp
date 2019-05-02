@@ -1,15 +1,16 @@
 package kioskmode.com.epoptia.splashscreen;
 
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
+import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
 
 public interface SplashScreenContract {
 
     interface View extends Lifecycle.View {
-        void navigateUserToLoginScreen();
+        void navigateUserToLoginScreen(DeviceViewModel deviceViewModel);
 
-        void navigateUserToWorkStationsScreen();
+        void navigateUserToWorkStationsScreen(DeviceViewModel deviceViewModel);
 
-        void navigateUserToKioskModeScreen();
+        void navigateUserToKioskModeScreen(DeviceViewModel deviceViewModel);
 
         void onSaveDeviceCategorySuccess();
 
@@ -19,7 +20,7 @@ public interface SplashScreenContract {
     interface ViewModel extends Lifecycle.ViewModel {
         void saveDeviceCategory();
 
-        void checkUserIsAuthenticated();
+        void checkUserAndDeviceState();
     }
 
 }

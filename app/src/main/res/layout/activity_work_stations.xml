@@ -4,20 +4,12 @@
 
     <data>
         <variable
-            name="processing"
-            type="boolean" />
+            name="workStationsViewModel"
+            type="kioskmode.com.epoptia.viewmodel.models.WorkStationsViewModel" />
 
         <variable
-            name="haserror"
-            type="boolean" />
-
-        <variable
-            name="errortext"
-            type="String" />
-
-        <variable
-            name="networkState"
-            type="String" />
+            name="networkStateViewModel"
+            type="kioskmode.com.epoptia.viewmodel.models.NetworkStateViewModel" />
 
         <import type="android.view.View" />
 
@@ -38,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="#FFCDD2"
-            android:visibility="@{networkState != null ? View.VISIBLE : View.GONE}">
+            android:visibility="@{networkStateViewModel != null &amp;&amp; networkStateViewModel.msg != null ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:id="@+id/networkStateTtv"
@@ -49,7 +41,7 @@
                 android:layout_centerInParent="true"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
-                android:text="@{networkState}" />
+                android:text="@{networkStateViewModel.msg}" />
 
         </RelativeLayout>
 
@@ -59,12 +51,12 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:layout_marginTop="40dp"
-            android:visibility="@{haserror ? View.VISIBLE : View.GONE}">
+            android:visibility="@{workStationsViewModel.errorMsg != null ? View.VISIBLE : View.GONE}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{errortext}" />
+                android:text="@{workStationsViewModel.errorMsg}" />
 
             <Button
                 android:id="@+id/retryBtn"
@@ -75,20 +67,20 @@
         </LinearLayout>
 
         <ProgressBar
-            android:id="@+id/prgrsBr"
+            android:id="@+id/progressBr"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="40dp"
             android:layout_gravity="center_horizontal"
-            android:visibility="@{processing ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{workStationsViewModel.processing ? View.VISIBLE : View.GONE}" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rcv"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rclView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
             android:background="@android:color/white"
-            android:visibility="@{!processing &amp;&amp; !haserror ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{!workStationsViewModel.processing &amp;&amp; workStationsViewModel.errorMsg == null ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
 

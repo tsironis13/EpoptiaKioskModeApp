@@ -6,8 +6,15 @@
     <string name="welcome">Καλωσήρθατε!</string>
     <string name="image_desc">image_desc</string>
 
+    <!-- Parcelable keys -->
+    <string name="device_view_model_parcel">device_view_model_parcel</string>
+    <string name="kioskmode_view_model_parcel">kioskmode_view_model_parcel</string>
+    <string name="login_view_model_parcel">login_view_model_parcel</string>
+
     <!-- Fragment Tags -->
     <string name="login_activity_retain_fragment">login_activity_retain_fragment</string>
+    <string name="work_stations_retain_fragment">work_stations_retain_fragment</string>
+    <string name="kioskmode_retain_fragment">kioskmode_retain_fragment</string>
 
     <!-- Shared Prefs -->
     <string name="domain_authenticated">domain_authenticated</string>

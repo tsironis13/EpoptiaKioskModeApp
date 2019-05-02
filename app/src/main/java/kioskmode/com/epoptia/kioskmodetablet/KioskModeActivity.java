@@ -5,15 +5,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AlertDialog;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,11 +71,17 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         handler = new Handler();
+
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_kiosk_mode);
+
         setSupportActionBar(mBinding.incltoolbar.toolbar);
+
         apiInterface = APIClient.getClient(SharedPrefsUtl.getStringFlag(this, getResources().getString(R.string.subdomain))).create(APIInterface.class);
+
         mDecorView = getWindow().getDecorView();
+
         if (savedInstanceState != null) {
             stationId = savedInstanceState.getInt("station_id");
             stationName = savedInstanceState.getString("station_name");
@@ -101,8 +107,11 @@ public class KioskModeActivity extends BaseActivity {
         }
 //        LifecycleHandler.get(this).addListener(this);
         kioskService = new KioskService();
+
         SharedPrefsUtl.setBooleanPref(this, getResources().getString(R.string.device_locked), true);
+
         immersiveMode();
+
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener
                 (new View.OnSystemUiVisibilityChangeListener() {
                     @Override
@@ -115,15 +124,20 @@ public class KioskModeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         preventStatusBarExpansion(this);
+
         handler.postDelayed(new Runnable() {
             public void run() {
                 //do something
                 if (uisystemvisibility == 0) immersiveMode();
+
                 runnable=this;
+
                 handler.postDelayed(runnable, delay);
             }
         }, delay);
+
         mBinding.incltoolbar.logoImgv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -157,9 +171,13 @@ public class KioskModeActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(runnable);
+
         if (blockingView!=null) {
+
             WindowManager manager = ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
+
             manager.removeView(blockingView);
+
             viewDestroyed = true;
         }
     }
@@ -301,15 +319,24 @@ public class KioskModeActivity extends BaseActivity {
 
     private void initializeView() {
         if (SharedPrefsUtl.getIntFlag(getApplicationContext(), getResources().getString(R.string.workstation_id)) != 0) {
+
+
             int inmemoryStationId = SharedPrefsUtl.getIntFlag(getApplicationContext(), getResources().getString(R.string.workstation_id));
+
+
             if (stationId == 0) stationId = inmemoryStationId;
 //            if (inmemoryStationId == stationId) stationId = inmemoryStationId;
         }
         String prefsCookie = SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie");
+
         String prefsUrl = SharedPrefsUtl.getStringFlag(getApplicationContext(), "end_url");
+
         String workeruser = SharedPrefsUtl.getStringFlag(getApplicationContext(), "worker_username");
+
         workerId = SharedPrefsUtl.getIntFlag(getApplicationContext(), "worker_id");
+
         workerUsername = workeruser;
+
         if (!SharedPrefsUtl.getStringFlag(getApplicationContext(), "cookie").equals("cookie")) {
             cookie = prefsCookie;
             url = prefsUrl;

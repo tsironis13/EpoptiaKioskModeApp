@@ -10,7 +10,7 @@ public class DevicePreferenceModelToDeviceDomainModelMapper {
     //region Injections
 
     @Inject
-    DomainDeviceModel device;
+    DomainDeviceModel domainDeviceModel;
 
     //endregion
 
@@ -24,10 +24,10 @@ public class DevicePreferenceModelToDeviceDomainModelMapper {
     //region Public Methods
 
     public DomainDeviceModel map(Preference_Device devicePref) {
-        device.setModeState(devicePref.getModeState());
-        device.setCategory(devicePref.getCategory());
+        domainDeviceModel.setModeState(devicePref.getModeState());
+        domainDeviceModel.setCategory(devicePref.getCategory());
 
-        return device;
+        return domainDeviceModel;
     }
 
     //endregion

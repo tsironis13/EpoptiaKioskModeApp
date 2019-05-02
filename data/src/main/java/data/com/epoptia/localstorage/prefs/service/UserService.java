@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_UserComponent;
 import data.com.epoptia.localstorage.prefs.entities.Preference_User;
 import data.com.epoptia.mappers.UserPreferenceModelToUserDomainModelMapper;
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.model.domain.DomainUserModel;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -35,21 +36,18 @@ public class UserService {
 
     //region Public Methods
 
-    public Completable saveAccessToken(DomainUserModel user) {
-        if (user == null) {
-            //todo change error ??
-            return Completable.error(new Exception("User is null"));
+    public Completable setAccessToken(DomainUserModel domainUserModel) {
+        if (domainUserModel == null) {
+            return Completable.error(new Exception(Constants.INVALID_DOMAIN_MODEL, new NullPointerException()));
         }
 
-        return Completable.fromAction(() -> userPref.putAccessToken(user.getAccessToken()));
+        return Completable.fromAction(() -> userPref.putAccessToken(domainUserModel.getAccessToken()));
     }
 
     public Single<DomainUserModel> getUser() {
         return Single
                     .just(userPref)
-                    .map((u) -> {
-                        return userPreferenceModelToUserDomainModelMapper.map(u);
-                    });
+                    .map((userPref) -> userPreferenceModelToUserDomainModelMapper.map(userPref));
     }
 
     //endregion

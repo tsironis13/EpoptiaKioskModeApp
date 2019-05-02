@@ -3,8 +3,8 @@ package kioskmode.com.epoptia.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class ConnectivityChangeService extends IntentService {
 

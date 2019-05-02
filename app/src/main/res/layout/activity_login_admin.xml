@@ -7,7 +7,7 @@
 
         <variable
             name="loginViewModel"
-            type="kioskmode.com.epoptia.login.model.LoginViewModel" />
+            type="kioskmode.com.epoptia.viewmodel.models.LoginViewModel" />
 
     </data>
 
@@ -26,17 +26,29 @@
             android:layout_marginBottom="30dp"
             android:contentDescription="@string/image_desc" />
 
+        <!-- PHONE -->
         <TextView
-            android:id="@+id/deviceCategoryTtv"
+            android:id="@+id/deviceIsPhoneTtv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:visibility="@{loginViewModel.deviceViewModel.category == 1 ? View.VISIBLE : View.GONE}"
+            android:text="@string/device_is_phone" />
 
-        <android.support.design.widget.TextInputLayout
+        <!-- TABLET -->
+        <TextView
+            android:id="@+id/deviceIsTabletTtv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:visibility="@{loginViewModel.deviceViewModel.category == 2 ? View.VISIBLE : View.GONE}"
+            android:text="@string/device_is_tablet" />
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
             android:layout_height="wrap_content">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/subDomainEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,14 +58,14 @@
                 android:enabled="@{!loginViewModel.subDomainIsValid}"
                 android:inputType="text" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="xxxxx.epoptia.com" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/usernameTxtInputLyt"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
@@ -61,7 +73,7 @@
             android:layout_marginBottom="10dp"
             android:visibility="@{loginViewModel.subDomainIsValid ? View.VISIBLE : View.GONE}">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/usernameEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,15 +82,15 @@
                 android:textSize="13sp"
                 android:inputType="text" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordTxtInputLyt"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:visibility="@{loginViewModel.subDomainIsValid ? View.VISIBLE : View.GONE}">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,14 +99,15 @@
                 android:textSize="13sp"
                 android:inputType="text" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/submitBtn"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/submit"
-            android:layout_marginTop="15dp" />
+            android:layout_marginTop="15dp"
+            android:enabled="@{loginViewModel.processing ? false : true}" />
 
         <ProgressBar
             android:id="@+id/prgrsBr"

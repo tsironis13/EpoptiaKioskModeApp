@@ -3,6 +3,7 @@ package data.com.epoptia.localstorage.prefs.repository;
 import javax.inject.Inject;
 
 import data.com.epoptia.localstorage.prefs.service.ClientService;
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.model.domain.DomainClientModel;
 import domain.com.epoptia.repository.localstorage.prefs.ClientRepository;
 import io.reactivex.Completable;
@@ -27,8 +28,8 @@ public class ClientRepositoryImpl implements ClientRepository {
     //region Public Methods
 
     @Override
-    public Completable saveClientSubDomain(DomainClientModel client) {
-        return clientService.saveClientSubDomain(client);
+    public Completable setClientSubDomain(DomainClientModel client) {
+        return clientService.setClientSubDomain(client);
     }
 
     @Override

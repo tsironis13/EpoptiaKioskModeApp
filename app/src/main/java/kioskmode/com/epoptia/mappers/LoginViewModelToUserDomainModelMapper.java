@@ -3,7 +3,7 @@ package kioskmode.com.epoptia.mappers;
 import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainUserModel;
-import kioskmode.com.epoptia.login.model.LoginViewModel;
+import kioskmode.com.epoptia.viewmodel.models.LoginViewModel;
 
 public class LoginViewModelToUserDomainModelMapper {
 

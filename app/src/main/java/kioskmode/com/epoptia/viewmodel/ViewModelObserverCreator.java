@@ -8,12 +8,18 @@ public abstract class ViewModelObserverCreator {
 
     public abstract ViewModelSingleObserver createSingleObserver();
 
+    public abstract ViewModelFlowableObserver createFlowableObserver();
+
     public ViewModelCompletableObserver getViewModelCompletableObserver() {
         return createCompletableObserver();
     }
 
     public ViewModelSingleObserver getViewModelSingleObserver() {
         return createSingleObserver();
+    }
+
+    public ViewModelFlowableObserver getViewModelFlowableObserver() {
+        return createFlowableObserver();
     }
 
     //endregion

@@ -10,7 +10,7 @@ public class UserPreferenceModelToUserDomainModelMapper {
     //region Injections
 
     @Inject
-    DomainUserModel user;
+    DomainUserModel domainUserModel;
 
     //endregion
 
@@ -24,9 +24,9 @@ public class UserPreferenceModelToUserDomainModelMapper {
     //region Public Methods
 
     public DomainUserModel map(Preference_User userPref) {
-        user.setAccessToken(userPref.getAccessToken());
+        domainUserModel.setAccessToken(userPref.getAccessToken());
 
-        return user;
+        return domainUserModel;
     }
 
     //endregion

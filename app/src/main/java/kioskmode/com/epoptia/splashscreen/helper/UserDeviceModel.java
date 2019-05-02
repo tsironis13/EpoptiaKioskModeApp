@@ -2,13 +2,16 @@ package kioskmode.com.epoptia.splashscreen.helper;
 
 import javax.inject.Inject;
 
+import domain.com.epoptia.model.domain.DomainDeviceModel;
+import domain.com.epoptia.model.domain.DomainUserModel;
+
 public class UserDeviceModel {
 
     //region Private Properties
 
-    private String userAccessToken;
+    private DomainUserModel domainUserModel;
 
-    private int deviceModeState;
+    private DomainDeviceModel domainDeviceModel;
 
     //endregion
 
@@ -21,24 +24,26 @@ public class UserDeviceModel {
 
     //region Setters
 
-    public void setUserAccessToken(String userAccessToken) {
-        this.userAccessToken = userAccessToken;
+
+    public void setDomainUserModel(DomainUserModel domainUserModel) {
+        this.domainUserModel = domainUserModel;
     }
 
-    public void setDeviceModeState(int deviceModeState) {
-        this.deviceModeState = deviceModeState;
+    public void setDomainDeviceModel(DomainDeviceModel domainDeviceModel) {
+        this.domainDeviceModel = domainDeviceModel;
     }
 
     //endregion
 
     //region Getters
 
-    public String getUserAccessToken() {
-        return userAccessToken;
+
+    public DomainUserModel getDomainUserModel() {
+        return domainUserModel;
     }
 
-    public int getDeviceModeState() {
-        return deviceModeState;
+    public DomainDeviceModel getDomainDeviceModel() {
+        return domainDeviceModel;
     }
 
     //endregion

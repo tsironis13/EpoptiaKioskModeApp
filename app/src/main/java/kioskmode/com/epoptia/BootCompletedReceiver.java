@@ -25,16 +25,17 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             //boolean deviceAwake = SharedPrefsUtl.getBooleanFlag(context, context.getResources().getString(R.string.device_is_awake));
 
             if (locked && context.getResources().getConfiguration().smallestScreenWidthDp >= 600) {
-                SharedPrefsUtl.setBooleanPref(context, context.getResources().getString(R.string.device_is_awake), true);
-
-                PackageManager p = context.getPackageManager();
-                ComponentName cN = new ComponentName(context, KioskModeActivity.class);
-                p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-
-                Intent i = new Intent(context, KioskModeActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                context.startActivity(i);
+                //todo check
+//                SharedPrefsUtl.setBooleanPref(context, context.getResources().getString(R.string.device_is_awake), true);
+//
+//                PackageManager p = context.getPackageManager();
+//                ComponentName cN = new ComponentName(context, KioskModeActivity.class);
+//                p.setComponentEnabledSetting(cN, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+//
+//                Intent i = new Intent(context, KioskModeActivity.class);
+//                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//
+//                context.startActivity(i);
             }
         }
     }

@@ -27,8 +27,8 @@ public class UserRepositoryImpl implements UserRepository {
     //region Public Methods
 
     @Override
-    public Completable saveAccessToken(DomainUserModel user) {
-        return userService.saveAccessToken(user);
+    public Completable setAccessToken(DomainUserModel user) {
+        return userService.setAccessToken(user);
     }
 
     @Override

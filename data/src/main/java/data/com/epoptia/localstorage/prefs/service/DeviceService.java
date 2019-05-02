@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_DeviceComponent;
 import data.com.epoptia.localstorage.prefs.entities.Preference_Device;
 import data.com.epoptia.mappers.DevicePreferenceModelToDeviceDomainModelMapper;
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.model.domain.DomainDeviceModel;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -37,28 +38,26 @@ public class DeviceService {
 
     //region Public Methods
 
-    public Completable setDeviceModeState(DomainDeviceModel device) {
-        if (device == null) {
-            //todo error ??
-            return Completable.error(new Exception("Device is null"));
+    public Completable setDeviceCategory(DomainDeviceModel domainDeviceModel) {
+        if (domainDeviceModel == null) {
+            return Completable.error(new Exception(Constants.INVALID_DOMAIN_MODEL, new NullPointerException()));
         }
 
-        return Completable.fromAction(() -> devicePref.putModeState(device.getModeState()));
+        return Completable.fromAction(() -> devicePref.putCategory(domainDeviceModel.getCategory()));
     }
 
-    public Completable setDeviceCategory(DomainDeviceModel device) {
-        if (device == null) {
-            //todo error ??
-            return Completable.error(new Exception("Device is null"));
+    public Completable setDeviceModeState(DomainDeviceModel domainDeviceModel) {
+        if (domainDeviceModel == null) {
+            return Completable.error(new Exception(Constants.INVALID_DOMAIN_MODEL, new NullPointerException()));
         }
 
-        return Completable.fromAction(() -> devicePref.putCategory(device.getCategory()));
+        return Completable.fromAction(() -> devicePref.putModeState(domainDeviceModel.getModeState()));
     }
 
     public Single<DomainDeviceModel> getDevice() {
         return Single
                     .just(devicePref)
-                    .map((d) -> devicePreferenceModelToDeviceDomainModelMapper.map(d));
+                    .map((devicePref) -> devicePreferenceModelToDeviceDomainModelMapper.map(devicePref));
     }
 
     //endregion

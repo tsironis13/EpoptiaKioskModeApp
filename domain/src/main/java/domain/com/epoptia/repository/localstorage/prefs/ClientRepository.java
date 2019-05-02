@@ -6,7 +6,7 @@ import io.reactivex.Single;
 
 public interface ClientRepository {
 
-    Completable saveClientSubDomain(DomainClientModel client);
+    Completable setClientSubDomain(DomainClientModel client);
 
     Single<DomainClientModel> getClient();
 

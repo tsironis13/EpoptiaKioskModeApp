@@ -1,19 +1,21 @@
 package kioskmode.com.epoptia.splashscreen;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+import android.os.Bundle;
 
 import javax.inject.Inject;
 
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.interactor.device.GetDeviceFromLocalStorageUseCase;
 import domain.com.epoptia.interactor.device.SaveDeviceCategoryToLocalStorageUseCase;
-import domain.com.epoptia.interactor.device.SaveDeviceModeStateToLocalStorageUseCase;
 import domain.com.epoptia.interactor.user.GetUserFromLocalStorageUseCase;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
+import kioskmode.com.epoptia.mappers.DomainDeviceModelToDeviceViewModelMapper;
 import kioskmode.com.epoptia.splashscreen.helper.UserDeviceModel;
+import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
 
 public class SplashScreenViewModel implements SplashScreenContract.ViewModel {
 
@@ -26,13 +28,13 @@ public class SplashScreenViewModel implements SplashScreenContract.ViewModel {
     SaveDeviceCategoryToLocalStorageUseCase saveDeviceCategoryToLocalStorageUseCase;
 
     @Inject
-    SaveDeviceModeStateToLocalStorageUseCase saveDeviceModeStateToLocalStorageUseCase;
-
-    @Inject
     GetDeviceFromLocalStorageUseCase getDeviceFromLocalStorageUseCase;
 
     @Inject
     UserDeviceModel userDeviceModel;
+
+    @Inject
+    DomainDeviceModelToDeviceViewModelMapper domainDeviceModelToDeviceViewModelMapper;
 
     //endregion
 
@@ -52,8 +54,10 @@ public class SplashScreenViewModel implements SplashScreenContract.ViewModel {
     //region Public Methods
 
     @Override
-    public void onViewAttached(Lifecycle.View viewCallback) {
+    public void onViewAttached(Bundle savedInstanceState, Lifecycle.View viewCallback) {
         mViewCallback = (SplashScreenContract.View) viewCallback;
+
+        saveDeviceCategory();
     }
 
     @Override
@@ -92,34 +96,31 @@ public class SplashScreenViewModel implements SplashScreenContract.ViewModel {
 
     @SuppressLint("CheckResult")
     @Override
-    public void checkUserIsAuthenticated() {
+    public void checkUserAndDeviceState() {
         Single.zip(
                 getDeviceFromLocalStorageUseCase.execute(),
                 getUserFromLocalStorageUseCase.execute(),
                 (domainDeviceModel, domainUserModel) -> {
-                    userDeviceModel.setDeviceModeState(domainDeviceModel.getModeState());
-                    userDeviceModel.setUserAccessToken(domainUserModel.getAccessToken());
+                    userDeviceModel.setDomainDeviceModel(domainDeviceModel);
+                    userDeviceModel.setDomainUserModel(domainUserModel);
 
                     return userDeviceModel;
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(userDeviceModel -> {
-                    Log.e("sds", "sdsdsds2332" + userDeviceModel.getUserAccessToken());
+                    DeviceViewModel deviceViewModel = domainDeviceModelToDeviceViewModelMapper.map(userDeviceModel.getDomainDeviceModel());
 
-                    if (userDeviceModel.getUserAccessToken() == null) {
-                        mViewCallback.navigateUserToLoginScreen();
+                    if (userDeviceModel.getDomainUserModel().getAccessToken() == null) {
+                        mViewCallback.navigateUserToLoginScreen(deviceViewModel);
                     } else {
-                        if (userDeviceModel.getDeviceModeState() == 15) {
-                            mViewCallback.navigateUserToWorkStationsScreen();
+                        if (userDeviceModel.getDomainDeviceModel().getModeState() == Constants.DEFAULT_MODE_STATE) {
+                            mViewCallback.navigateUserToWorkStationsScreen(deviceViewModel);
                         } else {
-                            mViewCallback.navigateUserToKioskModeScreen();
+                            mViewCallback.navigateUserToKioskModeScreen(deviceViewModel);
                         }
                     }
-                }, (error) -> {
-                    Log.e("sds", "sdsdsds1");
-                    mViewCallback.onError();
-                });
+                }, (error) -> mViewCallback.onError());
     }
 
     //endregion

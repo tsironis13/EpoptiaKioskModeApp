@@ -1,13 +1,20 @@
 package kioskmode.com.epoptia.di.module.utility;
 
 import android.content.Context;
+
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
-import device.com.epoptia.DeviceImpl;
-import device.com.epoptia.NetworkImpl;
-import domain.com.epoptia.device.Device;
-import domain.com.epoptia.device.Network;
+import device.com.epoptia.DeviceUtilityImpl;
+import device.com.epoptia.network.services.NetworkSpeedTestServiceImpl;
+import device.com.epoptia.network.NetworkUtilityImpl;
+import domain.com.epoptia.device.DeviceUtility;
+import domain.com.epoptia.device.network.services.NetworkSpeedTestService;
+import domain.com.epoptia.device.network.NetworkUtility;
 import domain.com.epoptia.model.domain.DomainDeviceModel;
+import domain.com.epoptia.model.domain.DomainSpeedTestModel;
+import fr.bmartel.speedtest.SpeedTestSocket;
 import kioskmode.com.epoptia.di.scope.ApplicationContextScope;
 
 @Module
@@ -22,13 +29,24 @@ public abstract class DeviceModule {
     //region Providers
 
     @Provides
-    static Network provideNetwork(@ApplicationContextScope Context context) {
-        return new NetworkImpl(context);
+    static SpeedTestSocket provideSpeedTestSocket() {
+        return new SpeedTestSocket();
     }
 
     @Provides
-    static Device provideDevice(@ApplicationContextScope Context context, DomainDeviceModel device) {
-        return new DeviceImpl(context, device);
+    static NetworkUtility provideNetwork(@ApplicationContextScope Context context) {
+        return new NetworkUtilityImpl(context);
+    }
+
+    @Provides
+    static DeviceUtility provideDevice(@ApplicationContextScope Context context) {
+        return new DeviceUtilityImpl(context);
+    }
+
+    @Provides
+    @Singleton
+    static NetworkSpeedTestService provideNetworkSpeedTestService(SpeedTestSocket speedTestSocket, DomainSpeedTestModel domainSpeedTestModel) {
+        return new NetworkSpeedTestServiceImpl(speedTestSocket, domainSpeedTestModel);
     }
 
     //endregion

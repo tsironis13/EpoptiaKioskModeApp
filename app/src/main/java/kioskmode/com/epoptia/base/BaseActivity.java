@@ -1,10 +1,14 @@
 package kioskmode.com.epoptia.base;
 
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
 import dagger.android.AndroidInjection;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
 
@@ -15,8 +19,6 @@ import kioskmode.com.epoptia.lifecycle.Lifecycle;
 public abstract class BaseActivity extends AppCompatActivity implements Lifecycle.View {
 
     //region Private Methods
-
-
 
     //endregion
 
@@ -36,22 +38,31 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
     @Override
     protected void onStart() {
         super.onStart();
+    }
 
-        if (getViewModel() != null) getViewModel().onViewAttached(this);
+    @Override
+    public void onStartWithSavedInstanceState(Bundle savedInstanceState) {
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewAttached(savedInstanceState,this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (getViewModel() != null) getViewModel().onViewResumed();
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewResumed();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        if (getViewModel() != null) getViewModel().onViewDetached();
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewDetached();
     }
 
     //endregion
@@ -60,9 +71,37 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
 
     public abstract Lifecycle.ViewModel getViewModel();
 
+    public void enableImmersiveMode() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return;
+        }
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
     public void showSnackBrMsg(String msg, View container, int length) {
         Snackbar snackbar = Snackbar.make(container, msg, length);
         snackbar.show();
+    }
+
+    public void hideSoftKeyboard() {
+        View view = getCurrentFocus();
+
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            if (imm == null) {
+                return;
+            }
+
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     //endregion

@@ -6,9 +6,9 @@ import io.reactivex.Single;
 
 public interface DeviceRepository {
 
-    Completable setDeviceModeState(DomainDeviceModel device);
-
     Completable setDeviceCategory(DomainDeviceModel device);
+
+    Completable setDeviceModeState(DomainDeviceModel device);
 
     Single<DomainDeviceModel> getDevice();
 

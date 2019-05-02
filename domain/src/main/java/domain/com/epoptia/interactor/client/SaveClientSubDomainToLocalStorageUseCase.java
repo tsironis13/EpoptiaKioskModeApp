@@ -27,7 +27,7 @@ public class SaveClientSubDomainToLocalStorageUseCase implements CompletableUseC
 
     @Override
     public Completable execute(DomainClientModel client) {
-        return localStorageClientRepository.saveClientSubDomain(client);
+        return localStorageClientRepository.setClientSubDomain(client);
     }
 
     //endregion

@@ -27,13 +27,13 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     //region Public Methods
 
     @Override
-    public Completable setDeviceModeState(DomainDeviceModel device) {
-        return deviceService.setDeviceModeState(device);
+    public Completable setDeviceCategory(DomainDeviceModel device) {
+        return deviceService.setDeviceCategory(device);
     }
 
     @Override
-    public Completable setDeviceCategory(DomainDeviceModel device) {
-        return deviceService.setDeviceCategory(device);
+    public Completable setDeviceModeState(DomainDeviceModel device) {
+        return deviceService.setDeviceModeState(device);
     }
 
     @Override

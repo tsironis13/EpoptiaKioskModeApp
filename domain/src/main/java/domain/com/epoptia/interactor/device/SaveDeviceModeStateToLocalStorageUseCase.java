@@ -6,8 +6,9 @@ import domain.com.epoptia.interactor.type.CompletableUseCaseWithParameter;
 import domain.com.epoptia.model.domain.DomainDeviceModel;
 import domain.com.epoptia.repository.localstorage.prefs.DeviceRepository;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 
-public class SaveDeviceModeStateToLocalStorageUseCase implements CompletableUseCaseWithParameter<DomainDeviceModel> {
+public class SaveDeviceModeStateToLocalStorageUseCase implements CompletableUseCaseWithParameter<Integer> {
 
     //region Injections
 
@@ -26,8 +27,16 @@ public class SaveDeviceModeStateToLocalStorageUseCase implements CompletableUseC
     //region Public Methods
 
     @Override
-    public Completable execute(DomainDeviceModel device) {
-        return deviceRepository.setDeviceModeState(device);
+    public Completable execute(Integer modeState) {
+        return deviceRepository
+                            .getDevice()
+                            .flatMap(device -> {
+                                device.setModeState(modeState);
+
+                                return Single.just(device);
+                            })
+                            .flatMapCompletable((deviceModel) -> deviceRepository.setDeviceModeState(deviceModel));
+
     }
 
     //endregion

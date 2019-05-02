@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_ClientComponent;
 import data.com.epoptia.localstorage.prefs.entities.Preference_Client;
 import data.com.epoptia.mappers.ClientPreferenceModelToClientDomainModelMapper;
+import domain.com.epoptia.Constants;
 import domain.com.epoptia.model.domain.DomainClientModel;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -37,19 +38,18 @@ public class ClientService {
 
     //region Public Methods
 
-    public Completable saveClientSubDomain(DomainClientModel client) {
-        if (client == null) {
-            //todo change error ??
-            return Completable.error(new Exception("Client is null"));
+    public Completable setClientSubDomain(DomainClientModel domainClientModel) {
+        if (domainClientModel == null) {
+            return Completable.error(new Exception(Constants.INVALID_DOMAIN_MODEL, new NullPointerException()));
         }
 
-        return Completable.fromAction(() -> clientPref.putSubDomain(client.getSubDomain()));
+        return Completable.fromAction(() -> clientPref.putSubDomain(domainClientModel.getSubDomain()));
     }
 
     public Single<DomainClientModel> getClient() {
         return Single
                     .just(clientPref)
-                    .map((c) -> clientPreferenceModelToClientDomainModelMapper.map(c));
+                    .map((clientPref) -> clientPreferenceModelToClientDomainModelMapper.map(clientPref));
     }
 
     //endregion

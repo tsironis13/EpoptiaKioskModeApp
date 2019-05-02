@@ -14,6 +14,9 @@ import dagger.android.HasActivityInjector;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_ClientComponent;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_DeviceComponent;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_UserComponent;
+import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_WorkStationComponent;
+import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_WorkerComponent;
+import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_WorkerPanelComponent;
 import kioskmode.com.epoptia.app.utils.KioskService;
 import kioskmode.com.epoptia.app.utils.LifecycleHandler;
 import kioskmode.com.epoptia.di.component.DaggerAppComponent;
@@ -96,15 +99,18 @@ public class MyApplication extends Application implements HasActivityInjector, L
      */
     private void injectDispatchingAndroidActivityInjector() {
         DaggerAppComponent
-                .builder()
-                .create(this)
-                .inject(this);
+                    .builder()
+                    .create(this)
+                    .inject(this);
     }
 
     private void initializePreferenceComponents() {
         PreferenceComponent_ClientComponent.init(this);
         PreferenceComponent_UserComponent.init(this);
         PreferenceComponent_DeviceComponent.init(this);
+        PreferenceComponent_WorkerPanelComponent.init(this);
+        PreferenceComponent_WorkStationComponent.init(this);
+        PreferenceComponent_WorkerComponent.init(this);
     }
 
     //endregion

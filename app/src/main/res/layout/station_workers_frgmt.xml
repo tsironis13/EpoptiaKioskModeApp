@@ -78,7 +78,7 @@
             android:layout_gravity="center_horizontal"
             android:visibility="@{processing ? View.VISIBLE : View.GONE}" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

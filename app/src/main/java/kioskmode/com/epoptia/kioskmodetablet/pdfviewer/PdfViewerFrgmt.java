@@ -1,20 +1,18 @@
 package kioskmode.com.epoptia.kioskmodetablet.pdfviewer;
 
-import android.content.Intent;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 
 import java.io.ByteArrayOutputStream;
@@ -26,12 +24,8 @@ import java.net.URL;
 import kioskmode.com.epoptia.R;
 import kioskmode.com.epoptia.databinding.PdfviewerFrgmtBinding;
 import kioskmode.com.epoptia.interfaces.HttpConnectionListener;
-import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
-import kioskmode.com.epoptia.kioskmodetablet.stationworkers.StationWorkersFrgmt;
 import kioskmode.com.epoptia.kioskmodetablet.systemdashboard.SystemDashboardFrgmt;
 import kioskmode.com.epoptia.utls.SharedPrefsUtl;
-
-import static android.app.Activity.RESULT_OK;
 
 public class PdfViewerFrgmt extends Fragment {
     private static final String debugTag = PdfViewerFrgmt.class.getSimpleName();
