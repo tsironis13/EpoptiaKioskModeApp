@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainClientModel;
 import domain.com.epoptia.model.dto.post.ValidateClientSubDomainPostDto;
+import io.reactivex.Single;
 
 public class ValidateClientSubDomainPostDtoToDomainClientModelMapper {
 
@@ -23,10 +24,10 @@ public class ValidateClientSubDomainPostDtoToDomainClientModelMapper {
 
     //region Public Methods
 
-    public DomainClientModel map(ValidateClientSubDomainPostDto validateClientSubDomainPostDto) {
+    public Single<DomainClientModel> map(ValidateClientSubDomainPostDto validateClientSubDomainPostDto) {
         domainClientModel.setSubDomain(validateClientSubDomainPostDto.getClientSubDomain());
 
-        return domainClientModel;
+        return Single.just(domainClientModel);
     }
 
     //endregion

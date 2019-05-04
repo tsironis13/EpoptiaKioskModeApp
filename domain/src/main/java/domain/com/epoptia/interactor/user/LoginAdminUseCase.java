@@ -65,7 +65,7 @@ public class LoginAdminUseCase implements CompletableUseCaseWithParameter<LoginA
                                                                             .loginAdmin(domainClientModel.getSubDomain(), loginAdminPostDto)
                                                                             .flatMap((Function<UserDto, SingleSource<UserDto>>) userDto -> serverSuccessResponseSingleValidator.validateResponse(userDto))
                                                                             .retryWhen(retryWithDelay))
-                                    .map((userDto) -> userDtoToDomainUserModelMapper.map(userDto))
+                                    .flatMap((userDto) -> userDtoToDomainUserModelMapper.map(userDto))
                                     .flatMapCompletable((userModel) -> saveAccessTokenToLocalStorageUseCase.execute(userModel));
     }
 

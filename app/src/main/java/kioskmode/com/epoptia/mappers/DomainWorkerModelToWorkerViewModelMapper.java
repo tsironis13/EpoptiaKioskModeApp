@@ -3,6 +3,7 @@ package kioskmode.com.epoptia.mappers;
 import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainWorkerModel;
+import io.reactivex.Single;
 import kioskmode.com.epoptia.viewmodel.models.WorkerViewModel;
 
 public class DomainWorkerModelToWorkerViewModelMapper {
@@ -23,11 +24,11 @@ public class DomainWorkerModelToWorkerViewModelMapper {
 
     //region Public Methods
 
-    public WorkerViewModel map(DomainWorkerModel domainWorkerModel) {
+    public Single<WorkerViewModel> map(DomainWorkerModel domainWorkerModel) {
         workerViewModel.setWorkerId(domainWorkerModel.getId());
         workerViewModel.setWorkerName(domainWorkerModel.getName());
 
-        return workerViewModel;
+        return Single.just(workerViewModel);
     }
 
     //endregion

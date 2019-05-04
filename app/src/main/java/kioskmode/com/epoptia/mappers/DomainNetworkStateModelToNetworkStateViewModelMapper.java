@@ -3,6 +3,7 @@ package kioskmode.com.epoptia.mappers;
 import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainNetworkStateModel;
+import io.reactivex.Single;
 import kioskmode.com.epoptia.viewmodel.models.NetworkStateViewModel;
 
 public class DomainNetworkStateModelToNetworkStateViewModelMapper {
@@ -23,10 +24,10 @@ public class DomainNetworkStateModelToNetworkStateViewModelMapper {
 
     //region Public Methods
 
-    public NetworkStateViewModel map(DomainNetworkStateModel domainNetworkStateModel) {
+    public Single<NetworkStateViewModel> map(DomainNetworkStateModel domainNetworkStateModel) {
         networkStateViewModel.setMsg(domainNetworkStateModel.getMsg());
 
-        return networkStateViewModel;
+        return Single.just(networkStateViewModel);
     }
 
     //endregion

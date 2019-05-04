@@ -3,6 +3,7 @@ package kioskmode.com.epoptia.mappers;
 import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainDeviceModel;
+import io.reactivex.Single;
 import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
 
 public class DomainDeviceModelToDeviceViewModelMapper {
@@ -23,11 +24,11 @@ public class DomainDeviceModelToDeviceViewModelMapper {
 
     //region Public Methods
 
-    public DeviceViewModel map(DomainDeviceModel domainDeviceModel) {
+    public Single<DeviceViewModel> map(DomainDeviceModel domainDeviceModel) {
         deviceViewModel.setCategory(domainDeviceModel.getCategory());
         deviceViewModel.setModeState(domainDeviceModel.getModeState());
 
-        return deviceViewModel;
+        return Single.just(deviceViewModel);
     }
 
     //endregion

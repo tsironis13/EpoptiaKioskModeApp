@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainBaseModel;
 import domain.com.epoptia.model.domain.DomainWorkStationModel;
+import io.reactivex.Single;
 
 public class ListDomainWorkStationToDomainBaseModelMapper {
 
@@ -25,10 +26,10 @@ public class ListDomainWorkStationToDomainBaseModelMapper {
 
     //region Public Methods
 
-    public DomainBaseModel map(List<DomainWorkStationModel> workStations) {
+    public Single<DomainBaseModel> map(List<DomainWorkStationModel> workStations) {
         domainBaseModel.setWorkStationModels(workStations);
 
-        return domainBaseModel;
+        return Single.just(domainBaseModel);
     }
 
     //endregion

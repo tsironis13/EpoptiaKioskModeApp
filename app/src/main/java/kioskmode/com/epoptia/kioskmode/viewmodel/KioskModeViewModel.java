@@ -106,18 +106,19 @@ public class KioskModeViewModel implements KioskModeContract.ViewModel {
     @SuppressLint("CheckResult")
     public void initialize() {
         Single.zip(
-                getDeviceFromLocalStorageUseCase.execute(),
-                getWorkStationFromLocalStorageUseCase.execute(),
-                getWorkerFromLocalStorageUseCase.execute(),
-                getWorkerPanelFromLocalStorageUseCase.execute(),
-                ((domainDeviceModel, domainWorkStationModel, domainWorkerModel, domainWorkerPanelModel) -> {
-                    DeviceViewModel deviceViewModel = domainDeviceModelToDeviceViewModelMapper.map(domainDeviceModel);
-
-                    WorkStationViewModel workStationViewModel = domainWorkStationModelToWorkStationViewModelMapper.map(domainWorkStationModel);
-
-                    WorkerViewModel workerViewModel = domainWorkerModelToWorkerViewModelMapper.map(domainWorkerModel);
-
-                    WorkerPanelViewModel workerPanelViewModel = domainWorkerPanelModelToWorkerPanelViewModelMapper.map(domainWorkerPanelModel);
+                getDeviceFromLocalStorageUseCase
+                                .execute()
+                                .flatMap(domainDeviceModel -> domainDeviceModelToDeviceViewModelMapper.map(domainDeviceModel)),
+                getWorkStationFromLocalStorageUseCase
+                                .execute()
+                                .flatMap(domainWorkStationModel -> domainWorkStationModelToWorkStationViewModelMapper.map(domainWorkStationModel)),
+                getWorkerFromLocalStorageUseCase
+                                .execute()
+                                .flatMap(domainWorkerModel -> domainWorkerModelToWorkerViewModelMapper.map(domainWorkerModel)),
+                getWorkerPanelFromLocalStorageUseCase
+                                .execute()
+                                .flatMap(domainWorkerPanelModel -> domainWorkerPanelModelToWorkerPanelViewModelMapper.map(domainWorkerPanelModel)),
+                ((deviceViewModel, workStationViewModel, workerViewModel, workerPanelViewModel) -> {
 
                     kioskModeViewModel.setDeviceViewModel(deviceViewModel);
                     kioskModeViewModel.setWorkStationViewModel(workStationViewModel);

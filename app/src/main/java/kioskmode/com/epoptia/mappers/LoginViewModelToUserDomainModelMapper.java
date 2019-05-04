@@ -3,6 +3,7 @@ package kioskmode.com.epoptia.mappers;
 import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainUserModel;
+import io.reactivex.Single;
 import kioskmode.com.epoptia.viewmodel.models.LoginViewModel;
 
 public class LoginViewModelToUserDomainModelMapper {
@@ -23,10 +24,10 @@ public class LoginViewModelToUserDomainModelMapper {
 
     //region Public Methods
 
-    public DomainUserModel map(LoginViewModel loginViewModel) {
+    public Single<DomainUserModel> map(LoginViewModel loginViewModel) {
         user.setAccessToken(loginViewModel.getAccessToken());
 
-        return user;
+        return Single.just(user);
     }
 
     //endregion

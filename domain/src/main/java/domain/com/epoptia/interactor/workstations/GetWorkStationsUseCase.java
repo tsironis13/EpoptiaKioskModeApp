@@ -60,6 +60,15 @@ public class GetWorkStationsUseCase implements FlowableUseCaseWithParameter<GetW
 
     //region Public Methods
 
+    /**
+     * This (flatMap -> workStationsDto...) ensures a couple of things:
+     *
+     * The number of Lists emitted by the Observable is maintained. i.e. if the source emits 3 lists, there will be 3 transformed lists on the other end
+     * Using Observable.fromIterable() will ensure the inner Observable terminates so that toList() can be used
+     *
+     * @param workStationsPostDto
+     * @return
+     */
     @Override
     public Flowable<DomainBaseModel> execute(GetWorkStationsPostDto workStationsPostDto) {
         return userLocalStorageRepository
@@ -77,11 +86,13 @@ public class GetWorkStationsUseCase implements FlowableUseCaseWithParameter<GetW
                                                                                 .getWorkStations(domainClientModel.getSubDomain(), workStationsPostDto)
                                                                                 .flatMap(workStationsDto -> serverSuccessResponseFlowableValidator.validateResponse(workStationsDto))
                                                                                 .retryWhen(retryWithDelay))
-                                .flatMapIterable((Function<WorkStationsDto, Iterable<WorkStationDto>>) WorkStationsDto::getWorkstations)
-                                .map(workStationDto -> workStationDtoToDomainWorkStationModelMapper.map(workStationDto))
-                                .toList()
-                                .map(domainWorkStations -> listDomainWorkStationToDomainBaseModelMapper.map(domainWorkStations))
-                                .toFlowable();
+                                .flatMap(workStationsDto ->
+                                        Flowable
+                                            .fromIterable(workStationsDto.getWorkstations())
+                                            .flatMapSingle(workStationDto -> workStationDtoToDomainWorkStationModelMapper.map(workStationDto))
+                                            .toList()
+                                            .toFlowable())
+                                .flatMapSingle(domainWorkStations -> listDomainWorkStationToDomainBaseModelMapper.map(domainWorkStations));
     }
 
 

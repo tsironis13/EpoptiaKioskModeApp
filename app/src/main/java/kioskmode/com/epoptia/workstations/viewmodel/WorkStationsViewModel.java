@@ -184,10 +184,10 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
     public void startNetworkSpeedTestService() {
         startNetworkSpeedTestServiceUseCase
                                     .execute()
+                                    .flatMapSingle(domainNetworkStateModel -> domainNetworkStateModelToNetworkStateViewModelMapper.map(domainNetworkStateModel))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(networkStateModel -> {
-                                        networkStateViewModel = domainNetworkStateModelToNetworkStateViewModelMapper.map(networkStateModel);
+                                    .subscribe(networkStateViewModel -> {
 
                                         mViewCallback.setNetworkState(networkStateViewModel);
                                     }, error -> {
@@ -235,12 +235,11 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
             return;
         }
 
-        DomainWorkStationModel workStationModel = workStationViewModelToWorkStationDomainModelMapper.map(workStationViewModel);
-
-        saveWorkStationToLocalStorageUseCase
-                                        .execute(workStationModel)
-                                        .subscribeOn(Schedulers.io())
-                                        .subscribe();
+        workStationViewModelToWorkStationDomainModelMapper
+                                                    .map(workStationViewModel)
+                                                    .flatMapCompletable(domainWorkStationModel -> saveWorkStationToLocalStorageUseCase.execute(domainWorkStationModel))
+                                                    .subscribeOn(Schedulers.io())
+                                                    .subscribe();
     }
 
     @Override

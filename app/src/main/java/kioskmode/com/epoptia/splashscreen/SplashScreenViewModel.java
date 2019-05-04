@@ -106,10 +106,10 @@ public class SplashScreenViewModel implements SplashScreenContract.ViewModel {
 
                     return userDeviceModel;
                 })
+                .flatMap(userDeviceModel -> domainDeviceModelToDeviceViewModelMapper.map(userDeviceModel.getDomainDeviceModel()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(userDeviceModel -> {
-                    DeviceViewModel deviceViewModel = domainDeviceModelToDeviceViewModelMapper.map(userDeviceModel.getDomainDeviceModel());
+                .subscribe(deviceViewModel -> {
 
                     if (userDeviceModel.getDomainUserModel().getAccessToken() == null) {
                         mViewCallback.navigateUserToLoginScreen(deviceViewModel);

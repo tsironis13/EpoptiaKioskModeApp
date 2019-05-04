@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import domain.com.epoptia.model.domain.DomainUserModel;
 import domain.com.epoptia.model.dto.result.UserDto;
+import io.reactivex.Single;
 
 public class UserDtoToDomainUserModelMapper {
 
@@ -23,10 +24,10 @@ public class UserDtoToDomainUserModelMapper {
 
     //region Public Methods
 
-    public DomainUserModel map(UserDto userDto) {
+    public Single<DomainUserModel> map(UserDto userDto) {
         domainUserModel.setAccessToken(userDto.getAccessToken());
 
-        return domainUserModel;
+        return Single.just(domainUserModel);
     }
 
     //endregion

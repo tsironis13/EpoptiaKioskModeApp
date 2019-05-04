@@ -185,9 +185,9 @@ public class KioskModeTabletViewModel extends KioskModeViewModel {
         Log.e(debugTag, mViewModelObserverCreator.getViewModelCompletableObserver() + " ON SUBMIT");
 
         mObserverDisposable = mCompletableProcessor
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
 
         unlockDeviceUseCase
                     .execute(unlockDevicePostDto)

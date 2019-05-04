@@ -67,7 +67,7 @@ public class ValidateClientSubDomainUseCase implements CompletableUseCaseWithPar
                                                             .validateClientSubDomain(dto.getClientSubDomain(), validateClientSubDomainDto)
                                                             .flatMap((Function<UserDto, SingleSource<UserDto>>) userDto -> serverSuccessResponseSingleValidator.validateResponse(userDto))
                                                             .retryWhen(retryWithDelay))
-                                .map((data) -> validateClientSubDomainPostDtoToDomainClientModelMapper.map(validateClientSubDomainDto))
+                                .flatMap((data) -> validateClientSubDomainPostDtoToDomainClientModelMapper.map(validateClientSubDomainDto))
                                 .flatMapCompletable((data) -> saveClientSubDomainToLocalStorageUseCase.execute(data));
     }
 
