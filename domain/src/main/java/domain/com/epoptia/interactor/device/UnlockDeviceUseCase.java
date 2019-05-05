@@ -6,12 +6,9 @@ import javax.inject.Inject;
 
 import domain.com.epoptia.device.network.NetworkUtility;
 import domain.com.epoptia.interactor.client.GetClientFromLocalStorageUseCase;
-import domain.com.epoptia.interactor.type.CompletableUseCaseWithParameter;
-import domain.com.epoptia.interactor.user.SaveAccessTokenToLocalStorageUseCase;
-import domain.com.epoptia.mappers.UserDtoToDomainUserModelMapper;
+import domain.com.epoptia.interactor.type.CompletableUseCaseWithTwoParameters;
 import domain.com.epoptia.model.dto.post.UnlockDevicePostDto;
 import domain.com.epoptia.model.dto.result.BaseResponseDto;
-import domain.com.epoptia.model.dto.result.UserDto;
 import domain.com.epoptia.repository.api.DeviceRepository;
 import domain.com.epoptia.repository.localstorage.prefs.UserRepository;
 import domain.com.epoptia.utilities.error.RetryWithDelay;
@@ -22,9 +19,12 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 
-public class UnlockDeviceUseCase implements CompletableUseCaseWithParameter<UnlockDevicePostDto> {
+public class UnlockDeviceUseCase implements CompletableUseCaseWithTwoParameters<UnlockDevicePostDto, Class> {
 
     //region Injections
+
+    @Inject
+    CleanUpOnDeviceUnlockUseCase cleanUpOnDeviceUnlockUseCase;
 
     @Inject
     NetworkUtility networkUtility;
@@ -59,7 +59,7 @@ public class UnlockDeviceUseCase implements CompletableUseCaseWithParameter<Unlo
     //region Public Methods
 
     @Override
-    public Completable execute(UnlockDevicePostDto unlockDevicePostDto) {
+    public Completable execute(UnlockDevicePostDto unlockDevicePostDto, Class component) {
         return Single.zip(
                         unlockDevicePostDtoValidator.validate(unlockDevicePostDto),
                         userLocalStorageRepository.getUser(), (unlockDvcPostDto, user) -> {
@@ -70,11 +70,18 @@ public class UnlockDeviceUseCase implements CompletableUseCaseWithParameter<Unlo
                         .delay(2000, TimeUnit.MILLISECONDS)
                         .flatMap(unlockDvcPostDto -> networkUtility.isNetworkAvailable().toSingleDefault(unlockDvcPostDto))
                         .flatMap(unlockDvcPostDto -> getClientFromLocalStorageUseCase.execute())
-                        .flatMap(domainClientModel -> deviceApiRepository
-                                                                .unlockDevice(domainClientModel.getSubDomain(), unlockDevicePostDto)
-                                                                .flatMap((Function<BaseResponseDto, SingleSource<BaseResponseDto>>) baseResponseDto -> serverSuccessResponseSingleValidator.validateResponse(baseResponseDto))
-                                                                .retryWhen(retryWithDelay))
-                        .ignoreElement();
+                        .flatMap(domainClientModel -> {
+                            String subDomain = domainClientModel.getSubDomain();
+
+                            unlockDevicePostDto.setCustomerDomain(subDomain);
+
+                            return deviceApiRepository
+                                                .unlockDevice(subDomain, unlockDevicePostDto)
+                                                .flatMap((Function<BaseResponseDto, SingleSource<BaseResponseDto>>) baseResponseDto -> serverSuccessResponseSingleValidator.validateResponse(baseResponseDto))
+                                                .retryWhen(retryWithDelay);
+                        })
+                        .ignoreElement()
+                        .andThen(cleanUpOnDeviceUnlockUseCase.execute(component));
     }
 
     //endregion

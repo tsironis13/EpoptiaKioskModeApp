@@ -7,6 +7,7 @@ import android.util.Log;
 import javax.inject.Inject;
 
 import domain.com.epoptia.Constants;
+import domain.com.epoptia.interactor.device.CleanUpOnDeviceUnlockUseCase;
 import domain.com.epoptia.interactor.device.UnlockDeviceUseCase;
 import domain.com.epoptia.model.dto.post.UnlockDevicePostDto;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -28,6 +29,9 @@ public class KioskModeTabletViewModel extends KioskModeViewModel {
 
     @Inject
     UnlockDevicePostDto unlockDevicePostDto;
+
+    @Inject
+    CleanUpOnDeviceUnlockUseCase cleanUpOnDeviceUnlockUseCase;
 
     @Inject
     UnlockDeviceUseCase unlockDeviceUseCase;
@@ -190,18 +194,21 @@ public class KioskModeTabletViewModel extends KioskModeViewModel {
                                             .subscribeWith(mViewModelObserverCreator.getViewModelCompletableObserver());
 
         unlockDeviceUseCase
-                    .execute(unlockDevicePostDto)
+                    .execute(unlockDevicePostDto, KioskModeActivity.class)
                     //.doOnSubscribe(subscription -> mViewCallback.setProcessing(true))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(mCompletableProcessor);
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void unlockDeviceOnSuccess() {
         clearUnnecessaryReferencesAndUnsetRequestState();
 
         Log.e(debugTag, "unlockDeviceOnSuccess");
+
+        mViewCallback.deviceUnlocked();
     }
 
     @Override
@@ -209,6 +216,8 @@ public class KioskModeTabletViewModel extends KioskModeViewModel {
         clearUnnecessaryReferencesAndUnsetRequestState();
 
         Log.e(debugTag, "unlockDeviceOnError" + t);
+
+        //todo add ui error handling
     }
 
     //endregion

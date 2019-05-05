@@ -21,10 +21,6 @@ import kioskmode.com.epoptia.mappers.DomainWorkStationModelToWorkStationViewMode
 import kioskmode.com.epoptia.mappers.DomainWorkerModelToWorkerViewModelMapper;
 import kioskmode.com.epoptia.mappers.DomainWorkerPanelModelToWorkerPanelViewModelMapper;
 import kioskmode.com.epoptia.viewmodel.models.AdminDetailsViewModel;
-import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
-import kioskmode.com.epoptia.viewmodel.models.WorkStationViewModel;
-import kioskmode.com.epoptia.viewmodel.models.WorkerPanelViewModel;
-import kioskmode.com.epoptia.viewmodel.models.WorkerViewModel;
 
 public class KioskModeViewModel implements KioskModeContract.ViewModel {
 
@@ -47,9 +43,6 @@ public class KioskModeViewModel implements KioskModeContract.ViewModel {
 
     @Inject
     GetWorkerFromLocalStorageUseCase getWorkerFromLocalStorageUseCase;
-
-    @Inject
-    CleanUpOnDeviceUnlockUseCase cleanUpOnDeviceUnlockUseCase;
 
     @Inject
     DomainDeviceModelToDeviceViewModelMapper domainDeviceModelToDeviceViewModelMapper;
