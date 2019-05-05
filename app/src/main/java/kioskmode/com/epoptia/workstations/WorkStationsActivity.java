@@ -137,6 +137,8 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
         }
 
         mBinding.retryBtn.setOnClickListener(view -> mViewModel.loadWorkStations());
+
+        initializeWorkStationsRcv();
     }
 
     @Override
@@ -237,36 +239,7 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
     public void loadWorkStationsOnSuccess(List<DomainWorkStationModel> domainWorkStations) {
         workStations = domainWorkStations;
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(WorkStationsActivity.this);
-
-        if (rcvAdapter == null) {
-            mBinding.rclView.addItemDecoration(new DividerItemDecoration(WorkStationsActivity.this, DividerItemDecoration.VERTICAL));
-        }
-
-        rcvAdapter = new RecyclerViewAdapter(R.layout.work_stations_rcv_row) {
-            @Override
-            protected Object getObjForPosition(int position, ViewDataBinding mBinding) {
-                return workStations.get(position);
-            }
-            @Override
-            protected int getLayoutIdForPosition(int position) {
-                return R.layout.work_stations_rcv_row;
-
-            }
-            @Override
-            protected int getTotalItems() {
-                return workStations.size();
-            }
-
-            @Override
-            protected Object getClickListenerObject() {
-                return workStationsPresenter;
-            }
-        };
-
-        mBinding.rclView.setLayoutManager(linearLayoutManager);
-        mBinding.rclView.setNestedScrollingEnabled(false);
-        mBinding.rclView.setAdapter(rcvAdapter);
+        rcvAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -383,6 +356,39 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
 
             Log.e(debugTag, "VIEW MODEL INSTANCE !!!!!! => " + mViewModel);
         }
+    }
+
+    private void initializeWorkStationsRcv() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(WorkStationsActivity.this);
+
+        if (rcvAdapter == null) {
+            mBinding.rclView.addItemDecoration(new DividerItemDecoration(WorkStationsActivity.this, DividerItemDecoration.VERTICAL));
+        }
+
+        rcvAdapter = new RecyclerViewAdapter(R.layout.work_stations_rcv_row) {
+            @Override
+            protected Object getObjForPosition(int position, ViewDataBinding mBinding) {
+                return workStations.get(position);
+            }
+            @Override
+            protected int getLayoutIdForPosition(int position) {
+                return R.layout.work_stations_rcv_row;
+
+            }
+            @Override
+            protected int getTotalItems() {
+                return workStations.size();
+            }
+
+            @Override
+            protected Object getClickListenerObject() {
+                return workStationsPresenter;
+            }
+        };
+
+        mBinding.rclView.setLayoutManager(linearLayoutManager);
+        mBinding.rclView.setNestedScrollingEnabled(false);
+        mBinding.rclView.setAdapter(rcvAdapter);
     }
 
     private void checkReadPhoneStatePermissionGranted() {

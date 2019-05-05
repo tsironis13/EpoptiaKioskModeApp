@@ -9,8 +9,8 @@
             type="domain.com.epoptia.model.domain.DomainWorkStationModel" />
 
         <variable
-            name="clickListener"
-            type="kioskmode.com.epoptia.workstations.WorkStationsClickListenerContract" />
+            name="itemClickListener"
+            type="kioskmode.com.epoptia.workstations.viewmodel.WorkStationsContract.ItemClickListener" />
 
     </data>
 
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:padding="7dp"
-        android:onClick="@{() -> clickListener.onItemClick(baseLlt)}">
+        android:onClick="@{() -> itemClickListener.onItemClick(baseLlt)}">
 
         <TextView
             android:layout_width="wrap_content"

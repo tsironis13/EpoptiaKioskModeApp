@@ -36,7 +36,7 @@ public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(Object obj, Object clickListener, int position) {
         mBinding.setVariable(BR.obj, obj);
-        mBinding.setVariable(BR.clickListener, clickListener);
+        mBinding.setVariable(BR.itemClickListener, clickListener);
 
         View baseView = mBinding.getRoot().findViewById(R.id.baseLlt);
 

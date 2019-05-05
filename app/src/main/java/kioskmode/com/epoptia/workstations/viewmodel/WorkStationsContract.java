@@ -45,4 +45,8 @@ public interface WorkStationsContract {
         void lockDevice();
     }
 
+    interface ItemClickListener {
+        void onItemClick(android.view.View view);
+    }
+
 }

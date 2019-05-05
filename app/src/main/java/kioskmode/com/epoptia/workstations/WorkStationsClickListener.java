@@ -8,7 +8,7 @@ import kioskmode.com.epoptia.workstations.viewmodel.WorkStationsContract;
  * Created by giannis on 5/9/2017.
  */
 
-public class WorkStationsClickListener implements WorkStationsClickListenerContract {
+public class WorkStationsClickListener implements WorkStationsContract.ItemClickListener {
 
     //region Private Properties
 
