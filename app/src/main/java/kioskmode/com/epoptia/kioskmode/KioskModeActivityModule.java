@@ -2,8 +2,11 @@ package kioskmode.com.epoptia.kioskmode;
 
 import dagger.Binds;
 import dagger.Module;
+import dagger.android.ContributesAndroidInjector;
+import kioskmode.com.epoptia.di.scope.FragmentScope;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeContract;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeViewModel;
+import kioskmode.com.epoptia.kioskmode.workers.StationWorkersFragment;
 
 @Module
 public abstract class KioskModeActivityModule {
@@ -15,6 +18,10 @@ public abstract class KioskModeActivityModule {
      */
 
     //region Providers
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract StationWorkersFragment stationWorkersFragmentInjector();
 
     @Binds
     public abstract KioskModeContract.ViewModel provideKioskModeContractViewModel(KioskModeViewModel kioskModeViewModel);

@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.fragment.app.Fragment;
+
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import dagger.android.support.HasSupportFragmentInjector;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_ClientComponent;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_DeviceComponent;
 import data.com.epoptia.localstorage.prefs.components.PreferenceComponent_UserComponent;
@@ -25,7 +28,7 @@ import kioskmode.com.epoptia.di.component.DaggerAppComponent;
  * Created by giannis on 26/8/2017.
  */
 
-public class MyApplication extends Application implements HasActivityInjector, LifecycleHandler.AppStateListener {
+public class MyApplication extends Application implements HasActivityInjector, HasSupportFragmentInjector, LifecycleHandler.AppStateListener {
 
     //region Injections
 
@@ -38,6 +41,9 @@ public class MyApplication extends Application implements HasActivityInjector, L
      */
     @Inject
     DispatchingAndroidInjector<Activity> mActivityInjector;
+
+    @Inject
+    DispatchingAndroidInjector<Fragment> mFragmentInjector;
 
     //endregion
 
@@ -88,6 +94,11 @@ public class MyApplication extends Application implements HasActivityInjector, L
     @Override
     public AndroidInjector<Activity> activityInjector() {
         return mActivityInjector;
+    }
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return mFragmentInjector;
     }
 
     //endregion

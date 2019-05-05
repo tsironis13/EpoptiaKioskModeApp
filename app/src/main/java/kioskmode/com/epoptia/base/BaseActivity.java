@@ -6,17 +6,31 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import javax.inject.Inject;
+
 import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
 
 /**
  * Created by giannis on 27/8/2017.
  */
 
-public abstract class BaseActivity extends AppCompatActivity implements Lifecycle.View {
+public abstract class BaseActivity extends AppCompatActivity implements HasSupportFragmentInjector, Lifecycle.View {
+
+    //region Injections
+
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
+
+    //endregion
 
     //region Private Methods
 
@@ -68,6 +82,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
     //endregion
 
     //region Public Methods
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
+    }
 
     public abstract Lifecycle.ViewModel getViewModel();
 

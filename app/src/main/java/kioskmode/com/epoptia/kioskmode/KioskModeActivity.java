@@ -2,10 +2,8 @@ package kioskmode.com.epoptia.kioskmode;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -30,11 +28,14 @@ import kioskmode.com.epoptia.databinding.ActivityTodochangenamekioskmodeBinding;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeContract;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModePhoneViewModel;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeTabletViewModel;
+import kioskmode.com.epoptia.kioskmode.workers.StationWorkersFragment;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.splashscreen.SplashScreenActivity;
 import kioskmode.com.epoptia.viewmodel.models.AdminDetailsViewModel;
 import kioskmode.com.epoptia.viewmodel.models.DeviceViewModel;
 import kioskmode.com.epoptia.viewmodel.models.KioskModeViewModel;
+import kioskmode.com.epoptia.viewmodel.models.StationWorkersViewModel;
+import kioskmode.com.epoptia.viewmodel.models.WorkStationViewModel;
 
 public class KioskModeActivity extends BaseActivity implements KioskModeContract.View {
 
@@ -57,6 +58,9 @@ public class KioskModeActivity extends BaseActivity implements KioskModeContract
 
     @Inject
     AdminDetailsViewModel adminDetailsViewModel;
+
+    @Inject
+    StationWorkersViewModel stationWorkersViewModel;
 
     //endregion
 
@@ -178,6 +182,14 @@ public class KioskModeActivity extends BaseActivity implements KioskModeContract
 
     //region Public Methods
 
+    public void setToolbarTitle(String title) {
+        mBinding.incltoolbar.toolbarTitle.setText(title);
+    }
+
+    public void setToolbarUsernameTitle(String username) {
+        mBinding.incltoolbar.usernameRightTtv.setText(username);
+    }
+
     @Override
     public Lifecycle.ViewModel getViewModel() {
         if (kioskModeViewModel == null || kioskModeViewModel.getDeviceViewModel() == null) {
@@ -206,6 +218,27 @@ public class KioskModeActivity extends BaseActivity implements KioskModeContract
         startActivity(intent);
 
         finish();
+    }
+
+    @Override
+    public void navigateUserToStationWorkersScreen(WorkStationViewModel workStationViewModel) {
+        if (workStationViewModel == null) {
+            return;
+        }
+
+        stationWorkersViewModel.setWorkStationViewModel(workStationViewModel);
+
+        getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.kioskModeLlt, StationWorkersFragment.newInstance(stationWorkersViewModel), getResources().getString(R.string.station_workers_frgmt))
+                            .commit();
+    }
+
+    @Override
+    public void navigateUserToWorkerPanelScreen() {
+
+
+
     }
 
     //endregion

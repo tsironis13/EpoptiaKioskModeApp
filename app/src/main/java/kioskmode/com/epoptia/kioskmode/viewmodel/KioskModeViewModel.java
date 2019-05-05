@@ -21,6 +21,7 @@ import kioskmode.com.epoptia.mappers.DomainWorkStationModelToWorkStationViewMode
 import kioskmode.com.epoptia.mappers.DomainWorkerModelToWorkerViewModelMapper;
 import kioskmode.com.epoptia.mappers.DomainWorkerPanelModelToWorkerPanelViewModelMapper;
 import kioskmode.com.epoptia.viewmodel.models.AdminDetailsViewModel;
+import kioskmode.com.epoptia.viewmodel.models.WorkerPanelViewModel;
 
 public class KioskModeViewModel implements KioskModeContract.ViewModel {
 
@@ -120,12 +121,16 @@ public class KioskModeViewModel implements KioskModeContract.ViewModel {
 
                     return kioskModeViewModel;
                 })
-
         )
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(kioskModeViewModel -> {
-            int x = 10;
+            WorkerPanelViewModel workerPanelViewModel = kioskModeViewModel.getWorkerPanelViewModel();
+
+            if (workerPanelViewModel.getCookie() == null && workerPanelViewModel.getUrl() == null) {
+                mViewCallback.navigateUserToStationWorkersScreen(kioskModeViewModel.getWorkStationViewModel());
+            }
+
         }, error -> {
             //todo
         });

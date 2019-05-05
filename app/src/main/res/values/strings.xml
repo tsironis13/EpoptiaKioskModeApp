@@ -10,6 +10,8 @@
     <string name="device_view_model_parcel">device_view_model_parcel</string>
     <string name="kioskmode_view_model_parcel">kioskmode_view_model_parcel</string>
     <string name="login_view_model_parcel">login_view_model_parcel</string>
+    <string name="workstation_view_model_parcel">workstation_view_model_parcel</string>
+    <string name="stationworkers_view_model_parcel">stationworkers_view_model_parcel</string>
 
     <!-- Fragment Tags -->
     <string name="login_activity_retain_fragment">login_activity_retain_fragment</string>
