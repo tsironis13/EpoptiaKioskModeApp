@@ -7,6 +7,7 @@ import kioskmode.com.epoptia.di.scope.FragmentScope;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeContract;
 import kioskmode.com.epoptia.kioskmode.viewmodel.KioskModeViewModel;
 import kioskmode.com.epoptia.kioskmode.workers.StationWorkersFragment;
+import kioskmode.com.epoptia.kioskmode.workers.StationWorkersFragmentModule;
 
 @Module
 public abstract class KioskModeActivityModule {
@@ -20,7 +21,7 @@ public abstract class KioskModeActivityModule {
     //region Providers
 
     @FragmentScope
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = StationWorkersFragmentModule.class)
     abstract StationWorkersFragment stationWorkersFragmentInjector();
 
     @Binds

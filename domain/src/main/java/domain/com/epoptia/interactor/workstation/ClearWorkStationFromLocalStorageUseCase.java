@@ -1,4 +1,4 @@
-package domain.com.epoptia.interactor.workstations;
+package domain.com.epoptia.interactor.workstation;
 
 import javax.inject.Inject;
 

@@ -5,10 +5,10 @@ import javax.inject.Inject;
 import data.com.epoptia.api.service.BaseNetworkServiceWrapper;
 import domain.com.epoptia.model.dto.post.GetWorkStationsPostDto;
 import domain.com.epoptia.model.dto.result.WorkStationsDto;
-import domain.com.epoptia.repository.api.WorkStationsRepository;
+import domain.com.epoptia.repository.api.WorkStationRepository;
 import io.reactivex.Flowable;
 
-public class WorkStationsRepositoryImpl implements WorkStationsRepository {
+public class WorkStationRepositoryImpl implements WorkStationRepository {
 
     //region Injections
 
@@ -20,7 +20,7 @@ public class WorkStationsRepositoryImpl implements WorkStationsRepository {
     //region Constructor
 
     @Inject
-    public WorkStationsRepositoryImpl() {}
+    public WorkStationRepositoryImpl() {}
 
     //endregion
 

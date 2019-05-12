@@ -11,6 +11,8 @@ public class DomainBaseModel {
 
     private List<DomainWorkStationModel> workStationModels;
 
+    private List<DomainWorkerModel> workerModels;
+
     //endregion
 
     //region Constructor
@@ -26,12 +28,20 @@ public class DomainBaseModel {
         this.workStationModels = workStationModels;
     }
 
+    public void setWorkerModels(List<DomainWorkerModel> workerModels) {
+        this.workerModels = workerModels;
+    }
+
     //endregion
 
     //region Getters
 
     public List<DomainWorkStationModel> getWorkStationModels() {
         return workStationModels;
+    }
+
+    public List<DomainWorkerModel> getWorkerModels() {
+        return workerModels;
     }
 
     //endregion

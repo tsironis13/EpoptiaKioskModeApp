@@ -1,10 +1,12 @@
 package data.com.epoptia.api.service;
 
+import domain.com.epoptia.model.dto.post.GetStationWorkersPostDto;
 import domain.com.epoptia.model.dto.post.GetWorkStationsPostDto;
 import domain.com.epoptia.model.dto.post.LoginAdminPostDto;
 import domain.com.epoptia.model.dto.post.UnlockDevicePostDto;
 import domain.com.epoptia.model.dto.post.ValidateClientSubDomainPostDto;
 import domain.com.epoptia.model.dto.result.BaseResponseDto;
+import domain.com.epoptia.model.dto.result.StationWorkersDto;
 import domain.com.epoptia.model.dto.result.UserDto;
 import domain.com.epoptia.model.dto.result.WorkStationsDto;
 import io.reactivex.Flowable;
@@ -25,6 +27,9 @@ public interface ServiceAPI {
 
     @POST("actions.php")
     Single<BaseResponseDto> unlockDevice(@Body UnlockDevicePostDto unlockDevicePostDto);
+
+    @POST("actions.php")
+    Flowable<StationWorkersDto> getStationWorkers(@Body GetStationWorkersPostDto stationWorkersPostDto);
 
 //    @POST("actions.php")
 //    Call<ValidateCustomerDomainResponse> validateCstmrDomain(@Body ValidateCustomerDomainRequest request);

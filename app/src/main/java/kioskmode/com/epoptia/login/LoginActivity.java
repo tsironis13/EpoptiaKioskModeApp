@@ -4,6 +4,8 @@ import android.content.Intent;
 import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
@@ -175,11 +177,17 @@ public class LoginActivity extends BaseActivity implements LoginContract.View {
     //region Private Methods
 
     private void retainViewModel() {
-        if (getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.login_activity_retain_fragment)) == null) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-            getSupportFragmentManager().beginTransaction().add(mLoginRetainFragment, getResources().getString(R.string.login_activity_retain_fragment)).commit();
+        if (fragmentManager.findFragmentByTag(getResources().getString(R.string.login_activity_retain_fragment)) == null) {
+
+            fragmentManager.beginTransaction().add(mLoginRetainFragment, getResources().getString(R.string.login_activity_retain_fragment)).commit();
         } else {
-            mLoginRetainFragment = (LoginRetainFragment) getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.login_activity_retain_fragment));
+            mLoginRetainFragment = (LoginRetainFragment) fragmentManager.findFragmentByTag(getResources().getString(R.string.login_activity_retain_fragment));
+
+            if (mLoginRetainFragment == null) {
+                return;
+            }
 
             if (mLoginRetainFragment.getViewModel() != null) mViewModel = mLoginRetainFragment.getViewModel();
         }

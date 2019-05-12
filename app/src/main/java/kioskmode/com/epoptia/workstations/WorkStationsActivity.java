@@ -2,7 +2,6 @@ package kioskmode.com.epoptia.workstations;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import androidx.databinding.DataBindingUtil;
@@ -19,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.util.Log;
@@ -33,7 +33,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import domain.com.epoptia.Constants;
-import domain.com.epoptia.model.domain.DomainWorkStationModel;
 import kioskmode.com.epoptia.base.BaseActivity;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
 import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
@@ -96,9 +95,9 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
 
     private RecyclerViewAdapter rcvAdapter;
 
-    private List<DomainWorkStationModel> workStations = new ArrayList<>();
+    private List<WorkStationViewModel> workStations = new ArrayList<>();
 
-    private WorkStationsClickListener workStationsPresenter;
+    private WorkStationClickListener workStationsPresenter;
 
     //endregion
 
@@ -126,7 +125,7 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
 
         retainViewModel();
 
-        workStationsPresenter = new WorkStationsClickListener(this);
+        workStationsPresenter = new WorkStationClickListener(this);
 
         int actionType = getIntent().getIntExtra(getResources().getString(R.string.action_type), 0);
 
@@ -236,8 +235,8 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
     }
 
     @Override
-    public void loadWorkStationsOnSuccess(List<DomainWorkStationModel> domainWorkStations) {
-        workStations = domainWorkStations;
+    public void loadWorkStationsOnSuccess(List<WorkStationViewModel> workStations) {
+        this.workStations = workStations;
 
         rcvAdapter.notifyDataSetChanged();
     }
@@ -331,8 +330,8 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
         int workStationId = workStations.get((int)view.getTag()).getId();
         String workStationName = workStations.get((int)view.getTag()).getName();
 
-        workStationViewModel.setWorkStationId(workStationId);
-        workStationViewModel.setWorkStationName(workStationName);
+        workStationViewModel.setId(workStationId);
+        workStationViewModel.setName(workStationName);
 
         mViewModel.selectWorkStation(workStationViewModel);
     }
@@ -342,11 +341,13 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
     //region Private Methods
 
     private void retainViewModel() {
-        if (getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.work_stations_retain_fragment)) == null) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-            getSupportFragmentManager().beginTransaction().add(mWorkStationsRetainFragment, getResources().getString(R.string.work_stations_retain_fragment)).commit();
+        if (fragmentManager.findFragmentByTag(getResources().getString(R.string.work_stations_retain_fragment)) == null) {
+
+            fragmentManager.beginTransaction().add(mWorkStationsRetainFragment, getResources().getString(R.string.work_stations_retain_fragment)).commit();
         } else {
-            mWorkStationsRetainFragment = (WorkStationsRetainFragment) getSupportFragmentManager().findFragmentByTag(getResources().getString(R.string.work_stations_retain_fragment));
+            mWorkStationsRetainFragment = (WorkStationsRetainFragment) fragmentManager.findFragmentByTag(getResources().getString(R.string.work_stations_retain_fragment));
 
             if (mWorkStationsRetainFragment == null) {
                 return;
@@ -420,8 +421,6 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
         }
     }
 
-    //endregion
-
     private void openLockDeviceDialog() {
         new AlertDialog.Builder(this)
                 .setTitle(getResources().getString(R.string.lock_device_dialog_title))
@@ -429,5 +428,7 @@ public class WorkStationsActivity extends BaseActivity implements WorkStationsCo
                 .setPositiveButton(getResources().getString(R.string.yes), (dialog, which) -> checkReadPhoneStatePermissionGranted())
                 .setNegativeButton(getResources().getString(R.string.no), null).show();
     }
+
+    //endregion
 
 }

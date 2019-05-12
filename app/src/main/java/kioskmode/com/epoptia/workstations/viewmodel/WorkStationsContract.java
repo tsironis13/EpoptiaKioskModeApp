@@ -12,7 +12,7 @@ public interface WorkStationsContract {
     interface View extends Lifecycle.View {
         void setProcessing(boolean isProcessing);
 
-        void loadWorkStationsOnSuccess(List<DomainWorkStationModel> domainWorkStations);
+        void loadWorkStationsOnSuccess(List<WorkStationViewModel> workStations);
 
         void loadWorkStationsOnError(Throwable throwable);
 

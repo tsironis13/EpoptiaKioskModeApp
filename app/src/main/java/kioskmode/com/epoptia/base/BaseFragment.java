@@ -3,12 +3,14 @@ package kioskmode.com.epoptia.base;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import dagger.android.support.AndroidSupportInjection;
+import kioskmode.com.epoptia.lifecycle.Lifecycle;
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment implements Lifecycle.View {
 
     //region Injections
 
@@ -34,9 +36,36 @@ public class BaseFragment extends Fragment {
         super.onAttach(context);
     }
 
+    @Override
+    public void onStartWithSavedInstanceState(Bundle savedInstanceState) {
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewAttached(savedInstanceState,this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewResumed();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Lifecycle.ViewModel lifecycleViewModel = getViewModel();
+
+        if (lifecycleViewModel != null) lifecycleViewModel.onViewDetached();
+    }
+
     //endregion
 
     //region Public Methods
+
+    public abstract Lifecycle.ViewModel getViewModel();
 
     //endregion
 

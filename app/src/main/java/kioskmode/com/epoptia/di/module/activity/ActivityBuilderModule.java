@@ -33,7 +33,6 @@ public abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = SplashScreenActivityModule.class)
     abstract SplashScreenActivity contributesSplashScreenActivityInjector();
 
-
     /**
      * Put LoginActivity into injector map.
      *

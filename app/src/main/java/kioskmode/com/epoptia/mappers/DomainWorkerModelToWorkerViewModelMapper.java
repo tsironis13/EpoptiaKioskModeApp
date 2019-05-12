@@ -10,9 +10,6 @@ public class DomainWorkerModelToWorkerViewModelMapper {
 
     //region Injections
 
-    @Inject
-    WorkerViewModel workerViewModel;
-
     //endregion
 
     //region Constructor
@@ -25,8 +22,10 @@ public class DomainWorkerModelToWorkerViewModelMapper {
     //region Public Methods
 
     public Single<WorkerViewModel> map(DomainWorkerModel domainWorkerModel) {
-        workerViewModel.setWorkerId(domainWorkerModel.getId());
-        workerViewModel.setWorkerName(domainWorkerModel.getName());
+        WorkerViewModel workerViewModel = new WorkerViewModel();
+
+        workerViewModel.setId(domainWorkerModel.getId());
+        workerViewModel.setName(domainWorkerModel.getName());
 
         return Single.just(workerViewModel);
     }

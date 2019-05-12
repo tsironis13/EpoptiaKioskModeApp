@@ -9,9 +9,9 @@ public class WorkerViewModel implements Parcelable {
 
     //region Private Properties
 
-    private int workerId;
+    private int id;
 
-    private String workerName;
+    private String name;
 
     //endregion
 
@@ -24,24 +24,24 @@ public class WorkerViewModel implements Parcelable {
 
     //region Setters
 
-    public void setWorkerId(int workerId) {
-        this.workerId = workerId;
+    public void setId(int workerId) {
+        this.id = workerId;
     }
 
-    public void setWorkerName(String workerName) {
-        this.workerName = workerName;
+    public void setName(String workerName) {
+        this.name = workerName;
     }
 
     //endregion
 
     //region Getters
 
-    public int getWorkerId() {
-        return workerId;
+    public int getId() {
+        return id;
     }
 
-    public String getWorkerName() {
-        return workerName;
+    public String getName() {
+        return name;
     }
 
     //endregion
@@ -50,8 +50,8 @@ public class WorkerViewModel implements Parcelable {
 
     // Parcelling part
     public WorkerViewModel(Parcel in){
-        this.workerId = in.readInt();
-        this.workerName = in.readString();
+        this.id = in.readInt();
+        this.name = in.readString();
     }
 
     @Override
@@ -61,8 +61,8 @@ public class WorkerViewModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(workerId);
-        out.writeString(workerName);
+        out.writeInt(id);
+        out.writeString(name);
     }
 
     public static final Parcelable.Creator<WorkerViewModel> CREATOR  = new Parcelable.Creator<WorkerViewModel>() {

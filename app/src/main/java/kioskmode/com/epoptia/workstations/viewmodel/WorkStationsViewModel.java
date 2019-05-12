@@ -3,7 +3,6 @@ package kioskmode.com.epoptia.workstations.viewmodel;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import java.util.List;
 
@@ -14,20 +13,19 @@ import domain.com.epoptia.interactor.device.GetDeviceFromLocalStorageUseCase;
 import domain.com.epoptia.interactor.device.LockDeviceUseCase;
 import domain.com.epoptia.interactor.network.StartNetworkSpeedTestServiceUseCase;
 import domain.com.epoptia.interactor.network.StopNetworkSpeedTestServiceUseCase;
-import domain.com.epoptia.interactor.workstations.GetWorkStationsUseCase;
-import domain.com.epoptia.interactor.workstations.SaveWorkStationToLocalStorageUseCase;
+import domain.com.epoptia.interactor.workstation.GetWorkStationsUseCase;
+import domain.com.epoptia.interactor.workstation.SaveWorkStationToLocalStorageUseCase;
 import domain.com.epoptia.model.domain.DomainBaseModel;
 import domain.com.epoptia.model.domain.DomainWorkStationModel;
 import domain.com.epoptia.model.dto.post.GetWorkStationsPostDto;
-import fr.bmartel.speedtest.model.SpeedTestError;
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.processors.AsyncProcessor;
 import io.reactivex.schedulers.Schedulers;
-import kioskmode.com.epoptia.kioskmodetablet.KioskModeActivity;
 import kioskmode.com.epoptia.lifecycle.Lifecycle;
-import kioskmode.com.epoptia.login.LoginViewModel;
 import kioskmode.com.epoptia.mappers.DomainNetworkStateModelToNetworkStateViewModelMapper;
+import kioskmode.com.epoptia.mappers.DomainWorkStationModelToWorkStationViewModelMapper;
 import kioskmode.com.epoptia.mappers.WorkStationViewModelToWorkStationDomainModelMapper;
 import kioskmode.com.epoptia.viewmodel.ObserverContextStrategy;
 import kioskmode.com.epoptia.viewmodel.ViewModelObserverCreator;
@@ -40,7 +38,6 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
 
     //region Injections
 
-    @Inject
     GetDeviceFromLocalStorageUseCase getDeviceFromLocalStorageUseCase;
 
     @Inject
@@ -73,12 +70,16 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
     @Inject
     WorkStationViewModelToWorkStationDomainModelMapper workStationViewModelToWorkStationDomainModelMapper;
 
+    @Inject
+    DomainWorkStationModelToWorkStationViewModelMapper domainWorkStationModelToWorkStationViewModelMapper;
+
     //endregion
 
     //region Public Properties
 
     public WorkStationsContract.View mViewCallback;
 
+    //todo remove
     public String test = "JKDSKLSSD";
 
     //endregion
@@ -96,6 +97,7 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
     //10 -> running
     //0 -> none
     private int requestState;
+
     //1 -> activity created
     //2 -> activity resumed
     //3 -> activity detached
@@ -205,6 +207,7 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
     public void lockDevice() {}
 
     @SuppressLint("CheckResult")
+    @Override
     public void loadWorkStations() {
         subjectType = Constants.FLOWABLE_SUBJECT;
 
@@ -246,12 +249,22 @@ public class WorkStationsViewModel implements WorkStationsContract.ViewModel {
     public void selectWorkStation(WorkStationViewModel workStationViewModel) {
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void loadWorkStationsOnSuccess(List<DomainWorkStationModel> domainWorkStations) {
         Log.e(debugTag, "loadWorkStationsOnSuccess");
         clearUnnecessaryReferencesAndUnsetRequestState();
 
-        mViewCallback.loadWorkStationsOnSuccess(domainWorkStations);
+        Flowable
+                .fromIterable(domainWorkStations)
+                .flatMapSingle(domainWorkStation -> domainWorkStationModelToWorkStationViewModelMapper.map(domainWorkStation))
+                .toList()
+                .toFlowable()
+                .subscribe(workStationViewModels -> {
+                    mViewCallback.loadWorkStationsOnSuccess(workStationViewModels);
+                }, error -> {
+                    //todo
+                });
     }
 
     @Override

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <data>
 
         <variable
             name="obj"
-            type="kioskmode.com.epoptia.viewmodel.models.WorkStationViewModel" />
+            type="kioskmode.com.epoptia.viewmodel.models.WorkerViewModel" />
 
         <variable
             name="itemClickListener"
-            type="kioskmode.com.epoptia.workstations.viewmodel.WorkStationsContract.ItemClickListener" />
+            type="kioskmode.com.epoptia.kioskmode.workers.viewmodel.StationWorkersContract.ItemClickListener" />
 
     </data>
 

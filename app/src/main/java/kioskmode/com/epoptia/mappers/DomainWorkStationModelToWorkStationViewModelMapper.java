@@ -10,9 +10,6 @@ public class DomainWorkStationModelToWorkStationViewModelMapper {
 
     //region Injections
 
-    @Inject
-    WorkStationViewModel workStationViewModel;
-
     //endregion
 
     //region Constructor
@@ -25,8 +22,10 @@ public class DomainWorkStationModelToWorkStationViewModelMapper {
     //region Public Methods
 
     public Single<WorkStationViewModel> map(DomainWorkStationModel domainWorkStationModel) {
-        workStationViewModel.setWorkStationId(domainWorkStationModel.getId());
-        workStationViewModel.setWorkStationName(domainWorkStationModel.getName());
+        WorkStationViewModel workStationViewModel = new WorkStationViewModel();
+
+        workStationViewModel.setId(domainWorkStationModel.getId());
+        workStationViewModel.setName(domainWorkStationModel.getName());
 
         return Single.just(workStationViewModel);
     }

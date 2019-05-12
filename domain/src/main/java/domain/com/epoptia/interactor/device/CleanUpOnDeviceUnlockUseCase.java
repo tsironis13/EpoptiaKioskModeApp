@@ -7,7 +7,7 @@ import domain.com.epoptia.device.DeviceUtility;
 import domain.com.epoptia.interactor.type.CompletableUseCaseWithParameter;
 import domain.com.epoptia.interactor.worker.ClearWorkerFromLocalStorageUseCase;
 import domain.com.epoptia.interactor.workerpanel.ClearWorkerPanelFromLocalStorageUseCase;
-import domain.com.epoptia.interactor.workstations.ClearWorkStationFromLocalStorageUseCase;
+import domain.com.epoptia.interactor.workstation.ClearWorkStationFromLocalStorageUseCase;
 import io.reactivex.Completable;
 
 public class CleanUpOnDeviceUnlockUseCase implements CompletableUseCaseWithParameter<Class> {

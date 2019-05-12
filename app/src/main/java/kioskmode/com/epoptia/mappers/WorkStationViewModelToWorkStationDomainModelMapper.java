@@ -25,8 +25,8 @@ public class WorkStationViewModelToWorkStationDomainModelMapper {
     //region Public Methods
 
     public Single<DomainWorkStationModel> map(WorkStationViewModel workStationViewModel) {
-        workStation.setId(workStationViewModel.getWorkStationId());
-        workStation.setName(workStationViewModel.getWorkStationName());
+        workStation.setId(workStationViewModel.getId());
+        workStation.setName(workStationViewModel.getName());
 
         return Single.just(workStation);
     }

@@ -1,4 +1,4 @@
-package domain.com.epoptia.interactor.workstations;
+package domain.com.epoptia.interactor.workstation;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,15 +11,12 @@ import domain.com.epoptia.mappers.ListDomainWorkStationToDomainBaseModelMapper;
 import domain.com.epoptia.mappers.WorkStationDtoToDomainWorkStationModelMapper;
 import domain.com.epoptia.model.domain.DomainBaseModel;
 import domain.com.epoptia.model.dto.post.GetWorkStationsPostDto;
-import domain.com.epoptia.model.dto.result.WorkStationDto;
-import domain.com.epoptia.model.dto.result.WorkStationsDto;
-import domain.com.epoptia.repository.api.WorkStationsRepository;
+import domain.com.epoptia.repository.api.WorkStationRepository;
 import domain.com.epoptia.repository.localstorage.prefs.UserRepository;
 import domain.com.epoptia.utilities.error.RetryWithDelay;
 import domain.com.epoptia.utilities.error.ServerSuccessResponseFlowableValidatorImpl;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 
 public class GetWorkStationsUseCase implements FlowableUseCaseWithParameter<GetWorkStationsPostDto, DomainBaseModel> {
 
@@ -35,7 +32,7 @@ public class GetWorkStationsUseCase implements FlowableUseCaseWithParameter<GetW
     GetClientFromLocalStorageUseCase getClientFromLocalStorageUseCase;
 
     @Inject
-    WorkStationsRepository workStationsApiRepository;
+    WorkStationRepository workStationApiRepository;
 
     @Inject
     ServerSuccessResponseFlowableValidatorImpl serverSuccessResponseFlowableValidator;
@@ -82,7 +79,7 @@ public class GetWorkStationsUseCase implements FlowableUseCaseWithParameter<GetW
                                 .flatMap(workStatnsPostDto -> networkUtility.isNetworkAvailable().toSingleDefault(workStatnsPostDto))
                                 .flatMap(workStatnsPostDto -> getClientFromLocalStorageUseCase.execute())
                                 .toFlowable()
-                                .flatMap(domainClientModel -> workStationsApiRepository
+                                .flatMap(domainClientModel -> workStationApiRepository
                                                                                 .getWorkStations(domainClientModel.getSubDomain(), workStationsPostDto)
                                                                                 .flatMap(workStationsDto -> serverSuccessResponseFlowableValidator.validateResponse(workStationsDto))
                                                                                 .retryWhen(retryWithDelay))

@@ -26,6 +26,7 @@ public class Constants {
 
     public static final String SUBDOMAIN_REQUIRED = "Το domain είναι υποχρεωτικό.";
     public static final String USERNAME_PASSWORD_REQUIRED = "Το όνομα χρήστη και ο κωδικός πρόσβασης είναι υποχρεωτικά.";
+    public static final String WORKSTATION_ID_REQUIRED = "Μη έγκυρο workstation.";
 
     //Network
     public static final String NO_WIFI_INFO = "Μη διαθέσιμο WIFI.";
@@ -60,6 +61,7 @@ public class Constants {
     public static final String ACTION_VALIDATE_CUSTOMER_DOMAIN = "validate_customer_domain";
     public static final String ACTION_GET_WORKSTATIONS = "get_workstations";
     public static final String ACTION_UNLOCK_DEVICE = "unlock_device";
+    public static final String ACTION_GET_STATIONWORKERS = "get_workers";
 
     //endregion
 

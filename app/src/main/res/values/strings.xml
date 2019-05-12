@@ -17,6 +17,7 @@
     <string name="login_activity_retain_fragment">login_activity_retain_fragment</string>
     <string name="work_stations_retain_fragment">work_stations_retain_fragment</string>
     <string name="kioskmode_retain_fragment">kioskmode_retain_fragment</string>
+    <string name="station_workers_retain_fragment">station_workers_retain_fragment</string>
 
     <!-- Shared Prefs -->
     <string name="domain_authenticated">domain_authenticated</string>

@@ -5,11 +5,13 @@ import dagger.Module;
 import data.com.epoptia.api.repository.ClientRepositoryImpl;
 import data.com.epoptia.api.repository.DeviceRepositoryImpl;
 import data.com.epoptia.api.repository.UserRepositoryImpl;
-import data.com.epoptia.api.repository.WorkStationsRepositoryImpl;
+import data.com.epoptia.api.repository.WorkStationRepositoryImpl;
+import data.com.epoptia.api.repository.WorkerRepositoryImpl;
 import domain.com.epoptia.repository.api.ClientRepository;
 import domain.com.epoptia.repository.api.DeviceRepository;
 import domain.com.epoptia.repository.api.UserRepository;
-import domain.com.epoptia.repository.api.WorkStationsRepository;
+import domain.com.epoptia.repository.api.WorkStationRepository;
+import domain.com.epoptia.repository.api.WorkerRepository;
 
 @Module
 public abstract class RepositoryModule {
@@ -29,10 +31,13 @@ public abstract class RepositoryModule {
     public abstract UserRepository provideUserApiRepository(UserRepositoryImpl userApiRepositoryImpl);
 
     @Binds
-    public abstract WorkStationsRepository provideWorkStationsRepository(WorkStationsRepositoryImpl workStationsRepository);
+    public abstract WorkStationRepository provideWorkStationsRepository(WorkStationRepositoryImpl workStationsRepository);
 
     @Binds
     public abstract DeviceRepository provideDeviceRepository(DeviceRepositoryImpl deviceRepository);
+
+    @Binds
+    public abstract WorkerRepository provideWorkerRepository(WorkerRepositoryImpl workerRepository);
 
     //endregion
 
